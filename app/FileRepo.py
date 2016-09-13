@@ -16,48 +16,48 @@ class NDExFileRepository():
         if(uuid is None):
             raise Exception('UID missing.  Please provide the network id')
         else:
-            self.load_full_network(self.uuid)
-            self.nodes = self.load_aspect(self.uuid, 'nodes')
+            self.load_full_network()
+            self.nodes = self.load_aspect('nodes')
             #self.edges = self.load_aspect(self.uuid, 'edges')
 
     #===============================
     # GET LIST OF ASPECTS FROM REPO
     #===============================
     '''Gets the aspects available for the specified network uid '''
-    def get_aspects(self, network_uid):
-        read_this_directory = os.path.join(self.repo_directory,network_uid,'aspects')
+    def get_aspects(self):
+        read_this_directory = os.path.join(self.repo_directory,self.uuid,'aspects')
         if os.path.isdir(read_this_directory):
-            print os.listdir(read_this_directory)
+            return os.listdir(read_this_directory)
         else:
-            print 'Not a directory'
+            return ['No aspects available']
 
     #==============================
     # LOAD ASPECT FROM REPO (JSON)
     #==============================
     '''Loads the given aspect for the specified network uid'''
-    def load_aspect(self, network_uid, aspect):
+    def load_aspect(self, aspect):
         #====================================
         # Check the cache. Load if necessary
         #====================================
-        if((network_uid in self.aspect_map) and (aspect in self.aspect_map[network_uid])):
-            return self.aspect_map[network_uid][aspect]
+        if((self.uuid in self.aspect_map) and (aspect in self.aspect_map[self.uuid])):
+            return self.aspect_map[self.uuid][aspect]
         else:
             read_this_aspect = ''
             if(aspect == 'full_network'):
-                read_this_aspect = os.path.join(self.repo_directory,network_uid,network_uid + '.cx')
+                read_this_aspect = os.path.join(self.repo_directory,self.uuid,self.uuid + '.cx')
             else:
-                read_this_aspect = os.path.join(self.repo_directory,network_uid,'aspects',aspect)
+                read_this_aspect = os.path.join(self.repo_directory,self.uuid,'aspects',aspect)
 
             with open(read_this_aspect, 'rt') as fid:
                 data = json.load(fid)
                 if(data is not None):
-                    if(network_uid not in self.aspect_map):
-                        self.aspect_map[network_uid] = {}
+                    if(self.uuid not in self.aspect_map):
+                        self.aspect_map[self.uuid] = {}
 
-                    self.aspect_map[network_uid][aspect] = data
+                    self.aspect_map[self.uuid][aspect] = data
 
                     fid.close()
-                    return self.aspect_map[network_uid][aspect]
+                    return self.aspect_map[self.uuid][aspect]
 
         return None
 
@@ -65,8 +65,8 @@ class NDExFileRepository():
     # LOAD FULL CX FROM REPO (JSON)
     #===============================
     '''Loads the full network for the specified network uid'''
-    def load_full_network(self, network_uid):
-        network_cx =  self.load_aspect(network_uid, 'full_network')
+    def load_full_network(self):
+        network_cx =  self.load_aspect('full_network')
         ndex_gsmall = NdexGraph(network_cx)
 
         return ndex_gsmall
@@ -77,7 +77,7 @@ class NDExFileRepository():
     '''returns the found nodes and their 1-step neighbors'''
     def search_network(self, search_terms):
         search_terms_array = search_terms.split(',')
-        ndex_gsmall = self.load_full_network(self.uuid)
+        ndex_gsmall = self.load_full_network()
 
         n = ndex_gsmall.nodes()
         subgraph_nodes = []
@@ -95,9 +95,9 @@ class NDExFileRepository():
 
         return ndex_gsmall_sub.to_cx()
 
-    def get_nodes_and_edges(self, network_uid):
-        nodes = self.load_aspect(network_uid, 'nodes')
-        edges = self.load_aspect(network_uid, 'edges')
+    def get_nodes_and_edges(self):
+        nodes = self.load_aspect('nodes')
+        edges = self.load_aspect('edges')
         mainG = nx.Graph()
         for edge in edges:
             if(edge['i'] == 'interacts_with'):
@@ -106,8 +106,8 @@ class NDExFileRepository():
         return mainG
 
     def get_nodes_and_edges_from_cx(self, network_uid):
-        nodes = self.load_aspect(network_uid, 'nodes')
-        edges = self.load_aspect(network_uid, 'edges')
+        nodes = self.load_aspect('nodes')
+        edges = self.load_aspect('edges')
         mainG = nx.Graph()
         for edge in edges:
             if(edge['i'] == 'interacts_with'):
@@ -140,13 +140,13 @@ class NDExFileRepository():
         #================================================
         # Check cache for the aspect.  Load if necessary
         #================================================
-        if(network_uid not in self.aspect_map):
-            convert_this_aspect = self.load_aspect(network_uid, aspect)
+        if(self.uuid not in self.aspect_map):
+            convert_this_aspect = self.load_aspect(aspect)
         else:
             if(aspect not in self.aspect_map[network_uid]):
-                convert_this_aspect = self.load_aspect(network_uid, aspect)
+                convert_this_aspect = self.load_aspect(aspect)
             else:
-                convert_this_aspect = self.aspect_map[network_uid][aspect]
+                convert_this_aspect = self.aspect_map[self.uuid][aspect]
 
 
 
