@@ -1,0 +1,306 @@
+[
+    {
+        "numberVerification": [
+            {
+                "longNumber": 281474976710655
+            }
+        ]
+    }, 
+    {
+        "metaData": [
+            {
+                "idCounter": 0, 
+                "name": "nodes"
+            }, 
+            {
+                "idCounter": 0, 
+                "name": "edges"
+            }
+        ]
+    }, 
+    {
+        "networkAttributes": []
+    }, 
+    {
+        "subNetworks": [
+            {
+                "nodes": [
+                    32, 
+                    1, 
+                    3, 
+                    40, 
+                    9, 
+                    8, 
+                    24
+                ], 
+                "edges": [
+                    5, 
+                    2, 
+                    3, 
+                    4, 
+                    6, 
+                    1, 
+                    17, 
+                    29, 
+                    28, 
+                    34
+                ], 
+                "@id": 0
+            }
+        ]
+    }, 
+    {
+        "cyViews": [
+            {
+                "s": 0, 
+                "@id": 0
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 32, 
+                "n": "MEX3C"
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 1, 
+                "n": "HDAC2"
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 3, 
+                "n": "SUMO1"
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 40, 
+                "n": "RALA"
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 9, 
+                "n": "YES1"
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 8, 
+                "n": "CDK2AP1"
+            }
+        ]
+    }, 
+    {
+        "nodes": [
+            {
+                "@id": 24, 
+                "n": "XPOT"
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 1, 
+                "@id": 5, 
+                "t": 32
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 1, 
+                "@id": 2, 
+                "t": 3
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 1, 
+                "@id": 3, 
+                "t": 8
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 1, 
+                "@id": 4, 
+                "t": 9
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 1, 
+                "@id": 6, 
+                "t": 40
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 1, 
+                "@id": 1, 
+                "t": 24
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 3, 
+                "@id": 17, 
+                "t": 32
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 8, 
+                "@id": 29, 
+                "t": 40
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 8, 
+                "@id": 28, 
+                "t": 9
+            }
+        ]
+    }, 
+    {
+        "edges": [
+            {
+                "i": "interacts_with", 
+                "s": 9, 
+                "@id": 34, 
+                "t": 32
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 5, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 2, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 3, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 4, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 6, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 1, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 17, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 29, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 28, 
+                "n": "interaction"
+            }
+        ]
+    }, 
+    {
+        "edgeAttributes": [
+            {
+                "v": "interacts_with", 
+                "po": 34, 
+                "n": "interaction"
+            }
+        ]
+    }
+]

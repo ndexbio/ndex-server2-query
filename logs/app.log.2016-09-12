@@ -1,0 +1,8 @@
+2016-09-12 15:44:18.435 api INFO: entering main loop
+2016-09-12 15:44:18.438 api ERROR: could not start web server: [Errno 13] Permission denied: ('0.0.0.0', 80)
+2016-09-12 15:44:18.439 api INFO: exiting with status 1
+2016-09-12 15:44:35.782 api INFO: entering main loop
+2016-09-12 15:44:35.784 api ERROR: could not start web server: [Errno 48] Address already in use: ('0.0.0.0', 8182)
+2016-09-12 15:44:35.785 api INFO: exiting with status 1
+2016-09-12 15:44:53.943 api INFO: entering main loop
+2016-09-12 15:46:05.508 api INFO: entering main loop
