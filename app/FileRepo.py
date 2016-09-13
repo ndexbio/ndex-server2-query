@@ -91,9 +91,9 @@ class NDExFileRepository():
 
         ndex_gsmall_sub = ndex_gsmall.subgraph(subgraph_nodes)
 
-        return ndex_gsmall_sub.to_cx()
         #ndex_gsmall_sub.write_to('../../cx/' + self.uuid + '_manual.cx')
-        mystr = ''
+
+        return ndex_gsmall_sub.to_cx()
 
     def get_nodes_and_edges(self, network_uid):
         nodes = self.load_aspect(network_uid, 'nodes')

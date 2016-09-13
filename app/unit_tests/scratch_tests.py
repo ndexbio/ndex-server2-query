@@ -22,7 +22,5 @@ class ScratchTests(unittest.TestCase):
 
         ndexFileRepository.search_network('HDAC2')
 
-
-
         self.assertTrue(True)
 
