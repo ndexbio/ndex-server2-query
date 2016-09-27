@@ -18,16 +18,23 @@ from bson.json_util import dumps
 
 api = Bottle()
 
-#import nav.api
-#api.merge(nav.api.api)
-
 log = app.get_logger('api')
 
-# generic API for returning a single record by id from a specific mongo database/collection
 @api.get('/api/query/:id/:queryterms')
 def api_mongo_get_id(id, queryterms):
     ndexFileRepository = NDExFileRepository(id)
     return dumps(ndexFileRepository.search_network(queryterms))
+
+@api.post('/network/:networkId/asCX/query')
+def api_mongo_get_id(networkId):
+    search_parms = request.json
+
+    print networkId
+    if('searchString' in search_parms.keys()):
+        ndexFileRepository = NDExFileRepository(networkId)
+        return dumps(ndexFileRepository.search_network(search_parms['searchString']))
+    else:
+        return {'message': 'not found'}
 
 # run the web server
 def main():
