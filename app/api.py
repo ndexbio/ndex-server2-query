@@ -21,18 +21,28 @@ api = Bottle()
 log = app.get_logger('api')
 
 @api.get('/api/query/:id/:queryterms')
-def api_mongo_get_id(id, queryterms):
+def api_query_get_by_id(id, queryterms):
     ndexFileRepository = NDExFileRepository(id)
     return dumps(ndexFileRepository.search_network(queryterms))
 
-@api.post('/network/:networkId/asCX/query')
-def api_mongo_get_id(networkId):
+@api.post('/api/query')
+def api_query_get_by_id_post():
     search_parms = request.json
 
-    print networkId
-    if('searchString' in search_parms.keys()):
-        ndexFileRepository = NDExFileRepository(networkId)
-        return dumps(ndexFileRepository.search_network(search_parms['searchString']))
+    search_depth = 1
+    if('depth' in search_parms.keys()):
+        search_depth = search_parms['depth']
+
+    if('searchString' in search_parms.keys() and 'uuid' in search_parms.keys()):
+        if(len(search_parms['uuid']) < 10):
+            return {'message': 'invalid uuid'}
+
+        if(len(search_parms['searchString']) < 3):
+            return {'message': 'invalid search string'}
+
+        ndexFileRepository = NDExFileRepository(search_parms['uuid'])
+
+        return dumps(ndexFileRepository.search_network(search_parms['searchString'],search_parms['depth']))
     else:
         return {'message': 'not found'}
 

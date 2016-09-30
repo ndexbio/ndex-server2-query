@@ -8,6 +8,7 @@ log_path = os.path.join(root, 'logs')
 mongodb_uri = 'mongodb://localhost'
 #repo_directory = '/Users/aarongary/Development/DataSets/NDEx/server2/data/'
 repo_directory = '/opt/ndex/data/'
+solr_url = 'http://dev.ndexbio.org:8983/solr/'
 
 def get_logger(name, level=logging.DEBUG):
     logger = logging.getLogger(name)
