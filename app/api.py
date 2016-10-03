@@ -21,7 +21,7 @@ api = Bottle()
 log = app.get_logger('api')
 
 @api.get('/v1/query')
-def api_query_get_by_id(id, queryterms):
+def api_query_get_by_id():
     id = request.query['id']
     queryterms = request.query['queryterms']
     ndexFileRepository = NDExFileRepository(id)
