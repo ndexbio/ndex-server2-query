@@ -20,12 +20,14 @@ api = Bottle()
 
 log = app.get_logger('api')
 
-@api.get('/api/query/:id/:queryterms')
+@api.get('/v1/query')
 def api_query_get_by_id(id, queryterms):
+    id = request.query['id']
+    queryterms = request.query['queryterms']
     ndexFileRepository = NDExFileRepository(id)
     return dumps(ndexFileRepository.search_network(queryterms))
 
-@api.post('/api/query')
+@api.post('/v1/query')
 def api_query_get_by_id_post():
     search_parms = request.json
 

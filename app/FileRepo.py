@@ -299,7 +299,7 @@ class NDExFileRepository():
             print '- add attributes: ' + str(time.time() - start_time)
 
             #ndex_gsmall_sub.write_to('../../cx/' + self.uuid + '_manual.cx')
-            print 'edges: ' + str(len(self.ndex_gsmall_searched.edges()))
+            #print 'edges: ' + str(len(self.ndex_gsmall_searched.edges()))
 
             return self.ndex_gsmall_searched.to_cx()
 
