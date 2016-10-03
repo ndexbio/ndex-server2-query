@@ -6,6 +6,7 @@ import networkx as nx
 import time
 import sys
 import pysolr
+from pysolr import SolrError
 from app import solr_url
 
 #==================================
@@ -219,93 +220,96 @@ class NDExFileRepository():
     '''returns the found nodes and their n-step neighbors'''
     def search_network(self, search_terms, depth=1):
         #search_terms_array = [self.get_node_id_by_value(sn) for sn in search_terms.split(',')]
+        search_terms_array = None
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
-        results = solr.search(search_terms)
-        search_terms_array = [int(n['id']) for n in results.docs]
+        try:
+            results = solr.search(search_terms)
+            search_terms_array = [int(n['id']) for n in results.docs]
 
-        aspect_list = self.get_aspects()
+            aspect_list = self.get_aspects()
 
-        #==========================================
-        # GET THE NODES in the n-step neighborhood
-        #==========================================
-        n = self.ndex_gsmall.nodes()
-        for i in range(depth):
-            subgraph_nodes = []
-            for term_id in search_terms_array:
-                if(term_id in n):
-                    subgraph_nodes.append(term_id)
-                    add_these_nodes = self.ndex_gsmall.neighbors(term_id)
-                    for add_node in add_these_nodes:
-                        if(add_node not in subgraph_nodes):
-                            subgraph_nodes.append(add_node)
+            #==========================================
+            # GET THE NODES in the n-step neighborhood
+            #==========================================
+            n = self.ndex_gsmall.nodes()
+            for i in range(depth):
+                subgraph_nodes = []
+                for term_id in search_terms_array:
+                    if(term_id in n):
+                        subgraph_nodes.append(term_id)
+                        add_these_nodes = self.ndex_gsmall.neighbors(term_id)
+                        for add_node in add_these_nodes:
+                            if(add_node not in subgraph_nodes):
+                                subgraph_nodes.append(add_node)
 
-            search_terms_array = subgraph_nodes # the found nodes becomes our new search pool (used if depth > 1)
+                search_terms_array = subgraph_nodes # the found nodes becomes our new search pool (used if depth > 1)
 
-        # GET THE EDGE IDS FOR THE REMAINING NODES
+            # GET THE EDGE IDS FOR THE REMAINING NODES
 
-        filtered_edge_ids = self.get_filtered_edge_ids(subgraph_nodes)
+            filtered_edge_ids = self.get_filtered_edge_ids(subgraph_nodes)
 
-        self.ndex_gsmall_searched = self.ndex_gsmall.subgraph_new(subgraph_nodes)
-        start_time = time.time()
+            self.ndex_gsmall_searched = self.ndex_gsmall.subgraph_new(subgraph_nodes)
+            start_time = time.time()
 
-        #==========================================
-        # Add all other aspects to the subnetwork
-        #==========================================
-        if('nodeAttributes' in aspect_list):
-            node_attributes_cx =  self.load_aspect('nodeAttributes')
-            for nodeAttribute in node_attributes_cx:
-                id = nodeAttribute['po']
-                name = nodeAttribute['n']
-                # special: ignore selected
-                if name == 'selected':
-                    continue
-                value = nodeAttribute['v']
-                if 'd' in nodeAttribute:
-                    d = nodeAttribute['d']
-                    if d == 'boolean':
-                        value = value.lower() == 'true'
-                if 's' in nodeAttribute or name not in self.ndex_gsmall_searched.graph[name]:
-                    #self.ndex_gsmall_searched.set_node_attribute(id, name, value)
-                    #self.node[id][name] = value
-                    self.ndex_gsmall_searched.graph[name] = value
-                    mystr = ''
-
-
-
-
-
-
-
-
-        node_attributes_cx = None
-
-        start_time = time.time()
-        if('edgeAttributes' in aspect_list):
-            edge_attributes_cx =  self.load_aspect('edgeAttributes')
-            for edgeAttribute in edge_attributes_cx:
-                id = edgeAttribute['po']
-                #if(id in filtered_edge_ids):
-                #edgemap_id = self.ndex_gsmall_searched.edgemap[id]
-                #print 'edgemap_id: ' + str(id) + ' s, t: ' + dumps(edgemap_id)
-                if(self.ndex_gsmall_searched.edgemap.get(id) is not None):
-
-                    name = edgeAttribute['n']
-                    # special: ignore selected and shared_name columns
-                    if name == 'selected' or name == 'shared name':
+            #==========================================
+            # Add all other aspects to the subnetwork
+            #==========================================
+            if('nodeAttributes' in aspect_list):
+                node_attributes_cx =  self.load_aspect('nodeAttributes')
+                for nodeAttribute in node_attributes_cx:
+                    id = nodeAttribute['po']
+                    name = nodeAttribute['n']
+                    # special: ignore selected
+                    if name == 'selected':
                         continue
-                    value = edgeAttribute['v']
-                    if 'd' in edgeAttribute:
-                        d = edgeAttribute['d']
+                    value = nodeAttribute['v']
+                    if 'd' in nodeAttribute:
+                        d = nodeAttribute['d']
                         if d == 'boolean':
                             value = value.lower() == 'true'
-                    self.ndex_gsmall_searched.set_edge_attribute(id,name,value)
+                    if 's' in nodeAttribute or name not in self.ndex_gsmall_searched.graph[name]:
+                        #self.ndex_gsmall_searched.set_node_attribute(id, name, value)
+                        #self.node[id][name] = value
+                        self.ndex_gsmall_searched.graph[name] = value
+                        mystr = ''
 
-        print '- add attributes: ' + str(time.time() - start_time)
+            node_attributes_cx = None
 
-        #ndex_gsmall_sub.write_to('../../cx/' + self.uuid + '_manual.cx')
-        print 'edges: ' + str(len(self.ndex_gsmall_searched.edges()))
+            start_time = time.time()
+            if('edgeAttributes' in aspect_list):
+                edge_attributes_cx =  self.load_aspect('edgeAttributes')
+                for edgeAttribute in edge_attributes_cx:
+                    id = edgeAttribute['po']
+                    #if(id in filtered_edge_ids):
+                    #edgemap_id = self.ndex_gsmall_searched.edgemap[id]
+                    #print 'edgemap_id: ' + str(id) + ' s, t: ' + dumps(edgemap_id)
+                    if(self.ndex_gsmall_searched.edgemap.get(id) is not None):
 
-        return self.ndex_gsmall_searched.to_cx()
+                        name = edgeAttribute['n']
+                        # special: ignore selected and shared_name columns
+                        if name == 'selected' or name == 'shared name':
+                            continue
+                        value = edgeAttribute['v']
+                        if 'd' in edgeAttribute:
+                            d = edgeAttribute['d']
+                            if d == 'boolean':
+                                value = value.lower() == 'true'
+                        self.ndex_gsmall_searched.set_edge_attribute(id,name,value)
+
+            print '- add attributes: ' + str(time.time() - start_time)
+
+            #ndex_gsmall_sub.write_to('../../cx/' + self.uuid + '_manual.cx')
+            print 'edges: ' + str(len(self.ndex_gsmall_searched.edges()))
+
+            return self.ndex_gsmall_searched.to_cx()
+
+        except SolrError as se:
+            #print se.message
+            if('404' in se.message):
+                app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
+            raise SolrError(se)
+
+        return None
 
     #=====================================
     # SEARCH NETWORK FOR n-STEP NEIGHBORS
