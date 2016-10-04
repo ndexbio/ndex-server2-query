@@ -40,11 +40,11 @@ def api_query_get_by_id_post(id):
         search_depth = search_parms['depth']
 
     #if('searchString' in search_parms.keys() and 'uuid' in search_parms.keys()):
-    if('searchString' in search_parms.keys()):
+    if('terms' in search_parms.keys()):
         if(len(id) < 1):
             return {'message': 'invalid uuid'}
 
-        if(len(search_parms['searchString']) <= 2):
+        if(len(search_parms['terms']) <= 2):
             return {'message': 'invalid search string'}
 
         ndexFileRepository = NDExFileRepository(id)
