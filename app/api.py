@@ -20,31 +20,36 @@ api = Bottle()
 
 log = app.get_logger('api')
 
-@api.get('/v1/query')
-def api_query_get_by_id():
-    id = request.query['id']
-    queryterms = request.query['queryterms']
-    ndexFileRepository = NDExFileRepository(id)
-    return dumps(ndexFileRepository.search_network(queryterms))
+@api.get('/v1/network/:id/query')
+def api_query_get_by_id(id):
+    #id = request.query.get('id')
+    query_terms = request.query.get('terms')
+    depth = request.query.get('depth')
+    if(id is not None and query_terms is not None):
+        ndexFileRepository = NDExFileRepository(id)
+        return dumps(ndexFileRepository.search_network(query_terms, depth))
+    else:
+        return {'message': 'not found'}
 
-@api.post('/v1/query')
-def api_query_get_by_id_post():
+@api.post('/v1/network/:id/query')
+def api_query_get_by_id_post(id):
     search_parms = request.json
 
     search_depth = 1
     if('depth' in search_parms.keys()):
         search_depth = search_parms['depth']
 
-    if('searchString' in search_parms.keys() and 'uuid' in search_parms.keys()):
-        if(len(search_parms['uuid']) < 10):
+    #if('searchString' in search_parms.keys() and 'uuid' in search_parms.keys()):
+    if('searchString' in search_parms.keys()):
+        if(len(id) < 1):
             return {'message': 'invalid uuid'}
 
-        if(len(search_parms['searchString']) < 3):
+        if(len(search_parms['searchString']) <= 2):
             return {'message': 'invalid search string'}
 
-        ndexFileRepository = NDExFileRepository(search_parms['uuid'])
+        ndexFileRepository = NDExFileRepository(id)
 
-        return dumps(ndexFileRepository.search_network(search_parms['searchString'],search_parms['depth']))
+        return dumps(ndexFileRepository.search_network(search_parms['terms'],search_parms['depth']))
     else:
         return {'message': 'not found'}
 
