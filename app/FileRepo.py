@@ -15,7 +15,7 @@ from app import solr_url
 # INSTEAD OF PIP INSTALLED VERSION
 #==================================
 #sys.path.append('/Users/aarongary/Development/Projects/ndex-python/ndex')
-sys.path.append('/home/ec2-user/query_engine/ndex-python/ndex')
+sys.path.append('/opt/ndex/query_engine/ndex-python/ndex')
 from networkn import NdexGraph
 
 #from ndex.networkn import NdexGraph
