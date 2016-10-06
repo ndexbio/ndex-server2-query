@@ -8,14 +8,14 @@ import sys
 import pysolr
 from pysolr import SolrError
 from app import solr_url
+from app import temp_append_path
 
 #==================================
 # TESTING CODE - NEED TO USE
 # LOCAL PACKAGE OF NETWORKN
 # INSTEAD OF PIP INSTALLED VERSION
 #==================================
-#sys.path.append('/Users/aarongary/Development/Projects/ndex-python/ndex')
-sys.path.append('/opt/ndex/query_engine/ndex-python/ndex')
+sys.path.append(app.temp_append_path)
 from networkn import NdexGraph
 
 #from ndex.networkn import NdexGraph
@@ -267,7 +267,7 @@ class NDExFileRepository():
                         d = nodeAttribute['d']
                         if d == 'boolean':
                             value = value.lower() == 'true'
-                    if 's' in nodeAttribute or name not in self.ndex_gsmall_searched.graph[name]:
+                    if 's' in nodeAttribute or (self.ndex_gsmall_searched.graph.get(name) is not None and name not in self.ndex_gsmall_searched.graph.get(name)):
                         #self.ndex_gsmall_searched.set_node_attribute(id, name, value)
                         #self.node[id][name] = value
                         self.ndex_gsmall_searched.graph[name] = value
