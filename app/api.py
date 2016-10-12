@@ -26,8 +26,11 @@ def api_query_get_by_id(id):
     query_terms = request.query.get('terms')
     depth = request.query.get('depth')
     if(id is not None and query_terms is not None):
-        ndexFileRepository = NDExFileRepository(id)
-        return dumps(ndexFileRepository.search_network(query_terms, depth))
+        try:
+            ndexFileRepository = NDExFileRepository(id)
+            return dumps(ndexFileRepository.search_network(query_terms, depth))
+        except Exception as e:
+            log.error(e.message)
     else:
         return {'message': 'not found'}
 
@@ -39,7 +42,6 @@ def api_query_get_by_id_post(id):
     if('depth' in search_parms.keys()):
         search_depth = search_parms['depth']
 
-    #if('searchString' in search_parms.keys() and 'uuid' in search_parms.keys()):
     if('terms' in search_parms.keys()):
         if(len(id) < 1):
             return {'message': 'invalid uuid'}
@@ -47,9 +49,14 @@ def api_query_get_by_id_post(id):
         if(len(search_parms['terms']) <= 2):
             return {'message': 'invalid search string'}
 
-        ndexFileRepository = NDExFileRepository(id)
+        try:
+            ndexFileRepository = NDExFileRepository(id)
 
-        return dumps(ndexFileRepository.search_network(search_parms['terms'],search_parms['depth']))
+            return dumps(ndexFileRepository.search_network(search_parms['terms'],search_parms['depth']))
+        except Exception as e:
+            log.error(e.message)
+            return {'message': e.message}
+
     else:
         return {'message': 'not found'}
 
