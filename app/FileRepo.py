@@ -16,10 +16,10 @@ from app import temp_append_path
 # LOCAL PACKAGE OF NETWORKN
 # INSTEAD OF PIP INSTALLED VERSION
 #==================================
-#sys.path.append(app.temp_append_path)
-#from networkn import NdexGraph
+sys.path.append(app.temp_append_path)
+from networkn import NdexGraph
 
-from ndex.networkn import NdexGraph
+#from ndex.networkn import NdexGraph
 #from ndex.client import Ndex
 
 class NDExFileRepository():
