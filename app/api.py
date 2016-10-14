@@ -7,7 +7,7 @@ from bson import ObjectId
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import bottle
-from bottle import Bottle, redirect, static_file, request
+from bottle import Bottle, redirect, static_file, request, abort, HTTPResponse
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -44,10 +44,10 @@ def api_query_get_by_id_post(id):
 
     if('terms' in search_parms.keys()):
         if(len(id) < 1):
-            return {'message': 'invalid uuid'}
+            return HTTPResponse(dict(message='invalid network id'), status=500)
 
         if(len(search_parms['terms']) <= 2):
-            return {'message': 'invalid search string'}
+            return HTTPResponse(dict(message='invalid search string'), status=500)
 
         try:
             ndexFileRepository = NDExFileRepository(id)
@@ -55,7 +55,7 @@ def api_query_get_by_id_post(id):
             return dumps(ndexFileRepository.search_network(search_parms['terms'],search_parms['depth']))
         except Exception as e:
             log.error(e.message)
-            return {'message': e.message}
+            return HTTPResponse(dict(message=e.message), status=500)
 
     else:
         return {'message': 'not found'}

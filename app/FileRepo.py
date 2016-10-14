@@ -43,7 +43,10 @@ class NDExFileRepository():
         self.filtered_citation_list = []
         self.filtered_node_citation_list = []
         self.filtered_edge_citation_list = []
-        self.known_aspects = ['cartesianLayout','citations','cyViews','edgeAttributes','edgeCitations','edges','edgeSupports','functionTerms','metaData','networkAttributes','nodeAttributes','nodeCitations','nodes','nodeSupports','supports','subNetworks']
+        self.known_aspects = ['cartesianLayout','citations','cyViews','edgeAttributes','edgeCitations','edges',
+                              'edgeSupports','functionTerms','metaData','networkAttributes','nodeAttributes',
+                              'nodeCitations','nodes','nodeSupports','supports','subNetworks','reifiedEdges',
+                              'cyVisualProperties','visualProperties']
         self.aspect_list = None
 
         if(uuid is None):
@@ -72,7 +75,7 @@ class NDExFileRepository():
         if os.path.isdir(read_this_directory):
             return os.listdir(read_this_directory)
         else:
-            return ['No aspects available']
+            return None
 
     #==============================
     # LOAD ASPECT FROM REPO (JSON)
@@ -131,6 +134,10 @@ class NDExFileRepository():
         :rtype: Networkn
         '''
         available_aspects = self.get_aspects()
+
+        if(available_aspects is None):
+            raise Exception("Network not found")
+
         ndex_gsmall = NdexGraph()
 
         if('subNetworks' in available_aspects):
@@ -160,7 +167,7 @@ class NDExFileRepository():
                 ndex_gsmall.create_from_aspects(aspect_cx, 'nodes')
                 self.metadata_dict['nodes'] = 0
         else:
-            raise KeyError("No nodes found. Nodes are required in aspects")
+            raise Exception("No nodes found. Nodes are required in aspects")
 
         if('edges' in available_aspects):
             aspect_cx =  self.load_aspect('edges')
@@ -168,7 +175,7 @@ class NDExFileRepository():
                 ndex_gsmall.create_from_aspects(aspect_cx, 'edges')
                 self.metadata_dict['edges'] = 0
         else:
-            raise KeyError("No edges found. Edges are required in aspects")
+            raise Exception("No edges found. Edges are required in aspects")
 
         self.ndex_gsmall = ndex_gsmall
         self.aspect_list = self.get_aspects()
@@ -312,6 +319,9 @@ class NDExFileRepository():
     #=====================================
     '''returns the found nodes and their n-step neighbors'''
     def search_network(self, search_terms, depth=1):
+        if(type(depth) is not int):
+            raise Exception("Depth must be an integer")
+
         start_time = time.time()
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
         try:
@@ -360,13 +370,27 @@ class NDExFileRepository():
             self.load_filtered_citations()
 
             #======================
-            # OPAQUE ASPECTS
+            # REIFIED EDGES
             #======================
-            for aspect_type in self.aspect_list:
-                if(aspect_type not in self.known_aspects):
-                    self.metadata_dict[aspect_type] = 0
-                    load_this_opaque_aspect =  self.load_aspect(aspect_type)
-                    self.ndex_gsmall_searched.create_from_aspects(load_this_opaque_aspect, aspect_type)
+            self.load_reified_edges()
+
+            #======================
+            # CY VISUAL PROPERTIES
+            #======================
+            self.load_cy_visual_properties()
+
+            #======================
+            # OPAQUE ASPECTS
+            # Update: ***
+            # Opaque aspects are
+            # not needed for
+            # query
+            #======================
+            #for aspect_type in self.aspect_list:
+            #    if(aspect_type not in self.known_aspects):
+            #        self.metadata_dict[aspect_type] = 0
+            #        load_this_opaque_aspect =  self.load_aspect(aspect_type)
+            #        self.ndex_gsmall_searched.create_from_aspects(load_this_opaque_aspect, aspect_type)
 
             print '- Assemble query network: ' + str(time.time() - start_time)
 
@@ -375,12 +399,37 @@ class NDExFileRepository():
             return self.ndex_gsmall_searched.to_cx(md_dict=self.metadata_dict)
 
         except SolrError as se:
-            #print se.message
             if('404' in se.message):
                 app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
-            raise SolrError(se)
+                raise Exception("Network not found (SOLR)")
+            #raise SolrError(se)
 
         return None
+
+    def load_reified_edges(self):
+        if('reifiedEdges' in self.aspect_list):
+            self.metadata_dict['reifiedEdges'] = 0
+            reified_edges_cx =  self.load_aspect('reifiedEdges')
+            filtered_reified_edges = []
+            for reified_edge in reified_edges_cx:
+                node = reified_edge['node']
+                edge = reified_edge['edge']
+                if(self.searched_node_map.get(node) is not None and self.ndex_gsmall_searched.edgemap.get(edge) is not None):
+                    filtered_reified_edges.append(reified_edge)
+
+            if(len(filtered_reified_edges) > 0):
+                self.ndex_gsmall_searched.create_from_aspects(filtered_reified_edges, 'reifiedEdges')
+
+    def load_cy_visual_properties(self):
+        if('cyVisualProperties' in self.aspect_list):
+            self.metadata_dict['cyVisualProperties'] = 0
+            cy_visual_properties_cx =  self.load_aspect('cyVisualProperties')
+            self.ndex_gsmall_searched.create_from_aspects(cy_visual_properties_cx, 'cyVisualProperties')
+
+        if('visualProperties' in self.aspect_list):
+            self.metadata_dict['visualProperties'] = 0
+            cy_visual_properties_cx =  self.load_aspect('visualProperties')
+            self.ndex_gsmall_searched.create_from_aspects(cy_visual_properties_cx, 'visualProperties')
 
     def load_filtered_node_attributes(self):
         if('nodeAttributes' in self.aspect_list):
