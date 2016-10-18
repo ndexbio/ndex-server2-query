@@ -324,8 +324,9 @@ class NDExFileRepository():
 
         start_time = time.time()
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
+
         try:
-            results = solr.search(search_terms)
+            results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             print 'Initial Search Terms: ' + dumps(search_terms_array)
 
