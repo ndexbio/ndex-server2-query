@@ -53,7 +53,7 @@ def api_query_get_by_id_post(id):
         try:
             start_time = time.time()
             ndexFileRepository = NDExFileRepository(id)
-            app.get_logger('PERFORMANCE').warning('N-step (' + str(i) + '): ' + str(time.time() - start_time))
+            app.get_logger('PERFORMANCE').warning('Build time: ' + str(time.time() - start_time))
 
             return dumps(ndexFileRepository.search_network(search_parms['terms'],search_parms['depth']))
         except Exception as e:
