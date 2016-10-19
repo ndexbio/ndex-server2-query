@@ -300,6 +300,7 @@ class NDExFileRepository():
         temp_search_terms_array = search_terms
         n = self.gsmall.nodes()
         for i in range(n_step):
+            start_time = time.time()
             temp_search_terms_array = []
             for k, v in search_terms_dict.iteritems():
                 if(k in n):
@@ -311,6 +312,7 @@ class NDExFileRepository():
             for search_term_i in temp_search_terms_array:
                 if(search_terms_dict.get(search_term_i) is None):
                     search_terms_dict[search_term_i] = 0
+            print 'N-step (' + str(i) + '): ' + str(time.time() - start_time)
 
         return [k for k,v in search_terms_dict.iteritems()]
 
@@ -328,14 +330,17 @@ class NDExFileRepository():
         try:
             results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
-            print 'Initial Search Terms: ' + dumps(search_terms_array)
+            #print 'Initial Search Terms: ' + dumps(search_terms_array)
+            print 'SOLR time: ' + str(time.time() - start_time)
 
             #==========================================
             # GET THE NODES in the n-step neighborhood
             #==========================================
             subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
 
+            start_time = time.time()
             self.ndex_gsmall_searched = self.ndex_gsmall.subgraph_new(subgraph_nodes)
+            print 'Subgraph time: ' + str(time.time() - start_time)
 
             #Free up the temp undirected graph
             self.gsmall = None
@@ -393,7 +398,7 @@ class NDExFileRepository():
             #        load_this_opaque_aspect =  self.load_aspect(aspect_type)
             #        self.ndex_gsmall_searched.create_from_aspects(load_this_opaque_aspect, aspect_type)
 
-            print '- Assemble query network: ' + str(time.time() - start_time)
+            print 'Assemble query network: ' + str(time.time() - start_time)
 
             self.ndex_gsmall_searched.add_status({'error' : '','success' : True})
 
