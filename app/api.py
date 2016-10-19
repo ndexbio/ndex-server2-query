@@ -8,6 +8,7 @@ from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import bottle
 from bottle import Bottle, redirect, static_file, request, abort, HTTPResponse
+import time
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -50,7 +51,9 @@ def api_query_get_by_id_post(id):
             return HTTPResponse(dict(message='invalid search string'), status=500)
 
         try:
+            start_time = time.time()
             ndexFileRepository = NDExFileRepository(id)
+            app.get_logger('PERFORMANCE').warning('N-step (' + str(i) + '): ' + str(time.time() - start_time))
 
             return dumps(ndexFileRepository.search_network(search_parms['terms'],search_parms['depth']))
         except Exception as e:

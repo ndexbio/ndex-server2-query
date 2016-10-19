@@ -312,6 +312,7 @@ class NDExFileRepository():
             for search_term_i in temp_search_terms_array:
                 if(search_terms_dict.get(search_term_i) is None):
                     search_terms_dict[search_term_i] = 0
+            app.get_logger('PERFORMANCE').warning('N-step (' + str(i) + '): ' + str(time.time() - start_time))
             print 'N-step (' + str(i) + '): ' + str(time.time() - start_time)
 
         return [k for k,v in search_terms_dict.iteritems()]
@@ -331,6 +332,7 @@ class NDExFileRepository():
             results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             #print 'Initial Search Terms: ' + dumps(search_terms_array)
+            app.get_logger('PERFORMANCE').warning('SOLR time: ' + str(time.time() - start_time))
             print 'SOLR time: ' + str(time.time() - start_time)
 
             #==========================================
@@ -340,6 +342,7 @@ class NDExFileRepository():
 
             start_time = time.time()
             self.ndex_gsmall_searched = self.ndex_gsmall.subgraph_new(subgraph_nodes)
+            app.get_logger('PERFORMANCE').warning('Subgraph time: ' + str(time.time() - start_time))
             print 'Subgraph time: ' + str(time.time() - start_time)
 
             #Free up the temp undirected graph
@@ -398,6 +401,7 @@ class NDExFileRepository():
             #        load_this_opaque_aspect =  self.load_aspect(aspect_type)
             #        self.ndex_gsmall_searched.create_from_aspects(load_this_opaque_aspect, aspect_type)
 
+            app.get_logger('PERFORMANCE').warning('Assemble query network: ' + str(time.time() - start_time))
             print 'Assemble query network: ' + str(time.time() - start_time)
 
             self.ndex_gsmall_searched.add_status({'error' : '','success' : True})
