@@ -165,24 +165,23 @@ class ScratchTests(unittest.TestCase):
 
     def test_search_multiple_networks(self):
         test_data = [
-            {'uuid': '9ae4fea6-8cb0-11e6-a9fe-06832d634f41', 'search_string': 'HBP1'},
-            {'uuid': '3c572160-75cc-11e6-ad66-06832d634f41', 'search_string': 'PSG11,AGK'},
-            {'uuid': '03cc14e8-7174-11e6-9178-06832d634f41', 'search_string': 'DPYSL3,DCN,NID2'},
-            {'uuid': '03f6c8b3-76e2-11e6-ad66-06832d634f41', 'search_string': 'ART3,LONRF1,ATP8A2'}
+            {'uuid': '018e3dc5-94b1-11e6-abed-06832d634f41', 'search_string': 'TP53,CDK4,AKT1'}
         ]
         for test_item in test_data:
             start_time = time.time()
             print '- Load file ' + test_item['uuid']
             try:
                 print 'UUID: ' + test_item['uuid']
+                start_time = time.time()
                 ndexFileRepository = NDExFileRepository(test_item['uuid'])
+                print 'Build time: ' + str(time.time() - start_time)
 
-                print '- Search network ' + str(time.time() - start_time)
                 print ' '
                 print ' '
 
-                searched_cx = ndexFileRepository.search_network(test_item['search_string'], 1)
+                searched_cx = ndexFileRepository.search_network(test_item['search_string'], 2)
                 searched_gsmall = NdexGraph(searched_cx)
+                print 'Edges: ' + str(len(searched_gsmall.edges())) + ' Nodes: ' + str(len(searched_gsmall.nodes()))
                 self.assertGreater(len(searched_gsmall.edges()), 0)
             except SolrError as se:
                 warnings.warn("Network not found in SOLR: " + test_item['uuid'], Warning)
