@@ -10,10 +10,10 @@ content type: application/json
 
 body content: 
 
-'''
-{
-"terms":  <comma delimited search term string>,
-"depth": <integer between 0 - 3>, 
-"edgeLimit":  <integer edge limit>
-}
+
+    {
+        "terms":  \<comma delimited search term string\>,
+        "depth": \<integer between 0 - 3\>, 
+        "edgeLimit":  \<integer edge limit\> 
+    }
 '''
