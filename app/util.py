@@ -1,5 +1,5 @@
 import time
-from bson import ObjectId
+#from bson import ObjectId
 import hashlib
 import app
 
@@ -12,7 +12,7 @@ def serialize(obj):
         for k, v in obj.iteritems():
             obj[k] = serialize(v)
         return obj
-    elif type(obj) == ObjectId:
+    elif type(obj) == ''#ObjectId:
         return str(obj)
     else:
         return obj
@@ -24,7 +24,7 @@ def deserialize(obj):
     elif type(obj) == dict:
         for k, v in obj.iteritems():
             if k == '_id':
-                obj[k] = ObjectId(obj[k])
+                obj[k] = ''#ObjectId(obj[k])
             else:
                 obj[k] = deserialize(obj[k])
         return obj

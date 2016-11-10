@@ -2,7 +2,6 @@
 
 import sys
 import argparse
-from bson import ObjectId
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import bottle
