@@ -3,7 +3,6 @@ import unittest
 import warnings
 from bson.json_util import dumps
 import json
-import pymongo
 import time
 import os
 from app.FileRepo import NDExFileRepository

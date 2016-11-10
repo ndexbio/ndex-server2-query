@@ -1,7 +1,6 @@
 #!/usr/local/bin/python
 
 import sys
-import pymongo
 import argparse
 from bson import ObjectId
 from gevent.pywsgi import WSGIServer
