@@ -21,6 +21,10 @@ api = Bottle()
 
 log = app.get_logger('api')
 
+@api.get('/message/:message')
+def api_message(message):
+    return 'Hi: ' + message
+
 @api.get('/v1/network/:id/query')
 def api_query_get_by_id(id):
     #id = request.query.get('id')
