@@ -1,7 +1,7 @@
 import os
 import app
 import json
-from bson.json_util import dumps
+#from bson.json_util import dumps
 import networkx as nx
 from networkx import Graph
 import time
@@ -285,7 +285,6 @@ class NDExFileRepository():
         for l in range(k):
             nbrs = set((nbr for n in nbrs for nbr in G[n]))
             neighbors[l] = nbrs
-        print dumps(neighbors)
         return nbrs
 
     def get_n_step_neighbors(self, n_step, search_terms):
