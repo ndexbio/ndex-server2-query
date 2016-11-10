@@ -12,7 +12,7 @@ def serialize(obj):
         for k, v in obj.iteritems():
             obj[k] = serialize(v)
         return obj
-    elif type(obj) == ''#ObjectId:
+    elif type(obj) == '':#ObjectId:
         return str(obj)
     else:
         return obj
