@@ -19,5 +19,7 @@ Search query engine for server 2
     
     
 **To run the service:**
+
 1. Create a user qengine
+
 2. run this command: sudo su qengine -c "nohup python -m app.api 8282 &"
