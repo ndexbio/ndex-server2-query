@@ -13,7 +13,7 @@ bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 import app
 from app.util import serialize
 from app.FileRepo import NDExFileRepository
-from bson.json_util import dumps
+#from bson.json_util import dumps
 
 api = Bottle()
 
@@ -31,7 +31,7 @@ def api_query_get_by_id(id):
     if(id is not None and query_terms is not None):
         try:
             ndexFileRepository = NDExFileRepository(id)
-            return dumps(ndexFileRepository.search_network(query_terms, depth))
+            return dict(data=ndexFileRepository.search_network(query_terms, depth))
         except Exception as e:
             log.error(e.message)
     else:
