@@ -388,6 +388,11 @@ class NDExFileRepository():
             self.load_cy_visual_properties()
 
             #======================
+            # NETWORK ATTRIBUTES
+            #======================
+            self.load_network_attributes()
+
+            #======================
             # OPAQUE ASPECTS
             # Update: ***
             # Opaque aspects are
@@ -439,6 +444,17 @@ class NDExFileRepository():
             self.metadata_dict['visualProperties'] = 0
             cy_visual_properties_cx =  self.load_aspect('visualProperties')
             self.ndex_gsmall_searched.create_from_aspects(cy_visual_properties_cx, 'visualProperties')
+
+    def load_network_attributes(self):
+        if('networkAttributes' in self.aspect_list):
+            self.metadata_dict['networkAttributes'] = 0
+            network_attributes_cx =  self.load_aspect('networkAttributes')
+            # Blank out description property.
+            # Description is only applicable to the parent network
+            for n_a_cx_item in network_attributes_cx:
+                if n_a_cx_item.get('n') == 'description':
+                    n_a_cx_item['v'] = ''
+            self.ndex_gsmall_searched.create_from_aspects(network_attributes_cx, 'networkAttributes')
 
     def load_filtered_node_attributes(self):
         if('nodeAttributes' in self.aspect_list):
