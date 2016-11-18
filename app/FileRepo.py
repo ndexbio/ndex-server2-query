@@ -390,7 +390,7 @@ class NDExFileRepository():
             #======================
             # NETWORK ATTRIBUTES
             #======================
-            self.load_network_attributes()
+            self.load_network_attributes(search_terms, depth)
 
             #======================
             # OPAQUE ASPECTS
@@ -408,7 +408,7 @@ class NDExFileRepository():
             app.get_logger('PERFORMANCE').warning('Assemble query network: ' + str(time.time() - start_time))
             print 'Assemble query network: ' + str(time.time() - start_time)
 
-            self.ndex_gsmall_searched.add_status({'error' : '','success' : True})
+            # This should happen automatically in Networkn --> self.ndex_gsmall_searched.add_status({'error' : '','success' : True})
 
             return self.ndex_gsmall_searched.to_cx(md_dict=self.metadata_dict)
 
@@ -445,7 +445,7 @@ class NDExFileRepository():
             cy_visual_properties_cx =  self.load_aspect('visualProperties')
             self.ndex_gsmall_searched.create_from_aspects(cy_visual_properties_cx, 'visualProperties')
 
-    def load_network_attributes(self):
+    def load_network_attributes(self, search_terms, depth):
         if('networkAttributes' in self.aspect_list):
             self.metadata_dict['networkAttributes'] = 0
             network_attributes_cx =  self.load_aspect('networkAttributes')
@@ -453,7 +453,7 @@ class NDExFileRepository():
             # Description is only applicable to the parent network
             for n_a_cx_item in network_attributes_cx:
                 if n_a_cx_item.get('n') == 'description':
-                    n_a_cx_item['v'] = ''
+                    n_a_cx_item['v'] = 'Query terms: ' + search_terms + ' | Depth: ' + str(depth)
             self.ndex_gsmall_searched.create_from_aspects(network_attributes_cx, 'networkAttributes')
 
     def load_filtered_node_attributes(self):
@@ -474,7 +474,7 @@ class NDExFileRepository():
                         if d == 'boolean':
                             value = value.lower() == 'true'
                     if 's' in nodeAttribute or name not in self.ndex_gsmall_searched.node[id]:
-                        self.ndex_gsmall_searched.graph[name] = value
+                        #self.ndex_gsmall_searched.graph[name] = value
                         self.ndex_gsmall_searched.set_node_attribute(id, name, value)
 
         node_attributes_cx = None

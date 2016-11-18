@@ -24,4 +24,10 @@ Search query engine for server 2
 
 2. run this command: sudo su qengine -c "nohup python -m app.api 8282 &"
 
-**
+**Requirements**
+
+gevent
+
+gevent_websocket
+
+bottle
