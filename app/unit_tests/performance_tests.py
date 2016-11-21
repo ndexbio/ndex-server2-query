@@ -3,7 +3,6 @@ __author__ = 'aarongary'
 import unittest
 import requests
 import warnings
-from bson.json_util import dumps
 import json
 import time
 import os
@@ -80,31 +79,31 @@ class PerformanceTests(unittest.TestCase):
 
         url2 = "http://dev2.ndexbio.org/rest/network/2ddcb5a9-94b1-11e6-93d8-0660b7976219/asNetwork/query"
 
-        print '--------DEV2---------------'
-        for i in range(0):
-            start_time = time.time()
-            post_json["searchDepth"] = 1
-            self.run_pack(url2, post_json, headers, None) # test_doc_path + '/dev2_depth1.cx')
-            result_times['d2_1'].append(time.time() - start_time)
-            print 'Response time (Large - Depth 1): ' + str(time.time() - start_time)
+        # print '--------DEV2---------------'
+        # for i in range(0):
+        #     start_time = time.time()
+        #     post_json["searchDepth"] = 1
+        #     self.run_pack(url2, post_json, headers, None) # test_doc_path + '/dev2_depth1.cx')
+        #     result_times['d2_1'].append(time.time() - start_time)
+        #     print 'Response time (Large - Depth 1): ' + str(time.time() - start_time)
+        #
+        #     start_time = time.time()
+        #     post_json["searchDepth"] = 2
+        #     self.run_pack(url2, post_json, headers, None)#test_doc_path + '/dev2_depth2.cx')
+        #     result_times['d2_2'].append(time.time() - start_time)
+        #     print 'Response time (Large - Depth 2): ' + str(time.time() - start_time)
+        #
+        #     start_time = time.time()
+        #     post_json["searchDepth"] = 3
+        #     self.run_pack(url2, post_json, headers, test_doc_path + '/dev2_depth3.cx')
+        #     result_times['d2_3'].append(time.time() - start_time)
+        #     print 'Response time (Large - Depth 3): ' + str(time.time() - start_time)
+        #
+        # print 'd2_1 average: ' + str(np.array(result_times['d2_1']).mean())
+        # print 'd2_2 average: ' + str(np.array(result_times['d2_2']).mean())
+        # print 'd2_3 average: ' + str(np.array(result_times['d2_3']).mean())
 
-            start_time = time.time()
-            post_json["searchDepth"] = 2
-            self.run_pack(url2, post_json, headers, None)#test_doc_path + '/dev2_depth2.cx')
-            result_times['d2_2'].append(time.time() - start_time)
-            print 'Response time (Large - Depth 2): ' + str(time.time() - start_time)
-
-            start_time = time.time()
-            post_json["searchDepth"] = 3
-            self.run_pack(url2, post_json, headers, test_doc_path + '/dev2_depth3.cx')
-            result_times['d2_3'].append(time.time() - start_time)
-            print 'Response time (Large - Depth 3): ' + str(time.time() - start_time)
-
-        print 'd2_1 average: ' + str(np.array(result_times['d2_1']).mean())
-        print 'd2_2 average: ' + str(np.array(result_times['d2_2']).mean())
-        print 'd2_3 average: ' + str(np.array(result_times['d2_3']).mean())
-
-        print dumps(result_times)
+        #print dumps(result_times)
 
     def run_pack(self, url, post_json, headers, test_doc_path):
 
@@ -114,7 +113,8 @@ class PerformanceTests(unittest.TestCase):
             dev_depth = response.json()
 
             downloadsTxt = open(test_doc_path, 'w')
-            downloadsTxt.write(dumps(dev_depth))
+            depth_temp = json.dumps(dev_depth)
+            downloadsTxt.write(depth_temp)
             downloadsTxt.close()
 
     def test_metrics(self):
