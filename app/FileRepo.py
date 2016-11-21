@@ -458,7 +458,7 @@ class NDExFileRepository():
 
     def load_filtered_node_attributes(self):
         if('nodeAttributes' in self.aspect_list):
-            self.metadata_dict['networkAttributes'] = 0
+            self.metadata_dict['nodeAttributes'] = 0
             node_attributes_cx =  self.load_aspect('nodeAttributes')
             for nodeAttribute in node_attributes_cx:
                 id = nodeAttribute['po']
@@ -478,6 +478,26 @@ class NDExFileRepository():
                         self.ndex_gsmall_searched.set_node_attribute(id, name, value)
 
         node_attributes_cx = None
+
+    def load_node_attributes(self):
+        if('nodeAttributes' in self.aspect_list):
+            self.metadata_dict['nodeAttributes'] = 0
+            node_attributes_cx =  self.load_aspect('nodeAttributes')
+            for nodeAttribute in node_attributes_cx:
+                id = nodeAttribute['po']
+
+                name = nodeAttribute['n']
+                # special: ignore selected
+                if name == 'selected':
+                    continue
+                value = nodeAttribute['v']
+                if 'd' in nodeAttribute:
+                    d = nodeAttribute['d']
+                    if d == 'boolean':
+                        value = value.lower() == 'true'
+                if 's' in nodeAttribute or name not in self.ndex_gsmall.node[id]:
+                    #self.ndex_gsmall_searched.graph[name] = value
+                    self.ndex_gsmall.set_node_attribute(id, name, value)
 
     def load_filtered_edge_attributes(self):
         if('edgeAttributes' in self.aspect_list):
@@ -500,6 +520,46 @@ class NDExFileRepository():
                         if d == 'boolean':
                             value = value.lower() == 'true'
                     self.ndex_gsmall_searched.set_edge_attribute(id,name,value)
+
+        edge_attributes_cx = None
+
+    def load_edge_attributes(self):
+        if('edgeAttributes' in self.aspect_list):
+            self.metadata_dict['edgeAttributes'] = 0
+            edge_attributes_cx =  self.load_aspect('edgeAttributes')
+            for edgeAttribute in edge_attributes_cx:
+                id = edgeAttribute['po']
+
+                name = edgeAttribute['n']
+                # special: ignore selected and shared_name columns
+                if name == 'selected' or name == 'shared name':
+                    continue
+                value = edgeAttribute['v']
+                if 'd' in edgeAttribute:
+                    d = edgeAttribute['d']
+                    if d == 'boolean':
+                        value = value.lower() == 'true'
+                self.ndex_gsmall.set_edge_attribute(id,name,value)
+
+        edge_attributes_cx = None
+
+    def load_filtered_edge_attributes(self):
+        if('edgeAttributes' in self.aspect_list):
+            self.metadata_dict['edgeAttributes'] = 0
+            edge_attributes_cx =  self.load_aspect('edgeAttributes')
+            for edgeAttribute in edge_attributes_cx:
+                id = edgeAttribute['po']
+
+                name = edgeAttribute['n']
+                # special: ignore selected and shared_name columns
+                if name == 'selected' or name == 'shared name':
+                    continue
+                value = edgeAttribute['v']
+                if 'd' in edgeAttribute:
+                    d = edgeAttribute['d']
+                    if d == 'boolean':
+                        value = value.lower() == 'true'
+                self.ndex_gsmall_searched.set_edge_attribute(id,name,value)
 
         edge_attributes_cx = None
 
