@@ -9,6 +9,7 @@ import sys
 import pysolr
 from pysolr import SolrError
 from app import solr_url
+import re
 from app import temp_append_path
 
 #==================================
@@ -319,6 +320,35 @@ class NDExFileRepository():
     #=====================================
     # SEARCH NETWORK FOR n-STEP NEIGHBORS
     #=====================================
+    escapeRules = {
+           '-': r'\-',
+           '&': r'\&',
+           '|': r'\|',
+           '!': r'\!',
+           '(': r'\(',
+           ')': r'\)',
+           '{': r'\{',
+           '}': r'\}',
+           '[': r'\[',
+           ']': r'\]',
+           '^': r'\^',
+           '~': r'\~',
+           '*': r'\*',
+           ':': r'\:',
+           ';': r'\;'
+    }
+
+    def escapedSeq(self, term):
+        """ Yield the next string based on the
+            next character (either this char
+            or escaped version """
+        for char in term:
+            if char in self.escapeRules.keys():
+                yield self.escapeRules[char]
+            else:
+                yield char
+
+
     '''returns the found nodes and their n-step neighbors'''
     def search_network(self, search_terms, depth=1):
         if(type(depth) is not int):
@@ -326,10 +356,15 @@ class NDExFileRepository():
 
         start_time = time.time()
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
+        search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
+        #quoted_search_terms = re.split(', |,| ',search_terms)
 
         try:
             results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
+            if(len(search_terms_array) < 1):
+                raise Exception("Search term(s) not found in this network")
+
             #print 'Initial Search Terms: ' + dumps(search_terms_array)
             app.get_logger('PERFORMANCE').warning('SOLR time: ' + str(time.time() - start_time))
             print 'SOLR time: ' + str(time.time() - start_time)
@@ -417,6 +452,8 @@ class NDExFileRepository():
                 app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
                 raise Exception("Network not found (SOLR)")
             #raise SolrError(se)
+        except Exception as e:
+            raise Exception(e.message)
 
         return None
 
@@ -539,7 +576,10 @@ class NDExFileRepository():
                     d = edgeAttribute['d']
                     if d == 'boolean':
                         value = value.lower() == 'true'
-                self.ndex_gsmall.set_edge_attribute(id,name,value)
+                try:
+                    self.ndex_gsmall.set_edge_attribute(id,name,value)
+                except Exception:
+                    myMessage="not found.  moving on."
 
         edge_attributes_cx = None
 
@@ -559,7 +599,11 @@ class NDExFileRepository():
                     d = edgeAttribute['d']
                     if d == 'boolean':
                         value = value.lower() == 'true'
-                self.ndex_gsmall_searched.set_edge_attribute(id,name,value)
+                try:
+                    self.ndex_gsmall_searched.set_edge_attribute(id,name,value)
+                except Exception:
+                    myMessage="not found.  moving on."
+
 
         edge_attributes_cx = None
 
