@@ -357,10 +357,10 @@ class NDExFileRepository():
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
         search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
         quoted_search_terms = re.split(', |,| ',search_terms)
-        quoted_search_terms = '","'.join(quoted_search_terms)
-        print "'" + quoted_search_terms + "'"
+        #quoted_search_terms = '","'.join(quoted_search_terms)
+        #print "'" + quoted_search_terms + "'"
         try:
-            results = solr.search('"' + quoted_search_terms + '"', rows=10000)
+            results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             if(len(search_terms_array) < 1):
                 raise Exception("Search term(s) not found in this network")
