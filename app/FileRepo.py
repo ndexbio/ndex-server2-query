@@ -337,15 +337,40 @@ class NDExFileRepository():
            ';': r'\;'
     }
 
+    escapeRulesHyphenStar = {
+           '-': r'\-',
+           '*': r'\*',
+           '&': r'\&',
+           '|': r'\|',
+           '!': r'\!',
+           '(': r'\(',
+           ')': r'\)',
+           '{': r'\{',
+           '}': r'\}',
+           '[': r'\[',
+           ']': r'\]',
+           '^': r'\^',
+           '~': r'\~',
+           ':': r'\:',
+           ';': r'\;'
+    }
+
     def escapedSeq(self, term):
         """ Yield the next string based on the
             next character (either this char
             or escaped version """
-        for char in term:
-            if char in self.escapeRules.keys():
-                yield self.escapeRules[char]
-            else:
-                yield char
+        if('*' in term and '-' in term):
+            for char in term:
+                if char in self.escapeRulesHyphenStar.keys():
+                    yield self.escapeRulesHyphenStar[char]
+                else:
+                    yield char
+        else:
+            for char in term:
+                if char in self.escapeRules.keys():
+                    yield self.escapeRules[char]
+                else:
+                    yield char
 
 
     '''returns the found nodes and their n-step neighbors'''
