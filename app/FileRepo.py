@@ -357,10 +357,11 @@ class NDExFileRepository():
         start_time = time.time()
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
         search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
-        #quoted_search_terms = re.split(', |,| ',search_terms)
-
+        quoted_search_terms = re.split(', |,| ',search_terms)
+        quoted_search_terms = "','".join(quoted_search_terms)
+        print "'" + quoted_search_terms + "'"
         try:
-            results = solr.search(search_terms, rows=10000)
+            results = solr.search("'" + quoted_search_terms + "'", rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             if(len(search_terms_array) < 1):
                 raise Exception("Search term(s) not found in this network")
@@ -452,8 +453,8 @@ class NDExFileRepository():
                 app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
                 raise Exception("Network not found (SOLR)")
             #raise SolrError(se)
-        except Exception as e:
-            raise Exception(e.message)
+        #except Exception as e:
+        #    raise Exception(e.message)
 
         return None
 
