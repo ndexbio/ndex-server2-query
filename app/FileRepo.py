@@ -357,10 +357,21 @@ class NDExFileRepository():
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
         search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
         quoted_search_terms = re.split(', |,| ',search_terms)
-        #quoted_search_terms = '","'.join(quoted_search_terms)
-        #print "'" + quoted_search_terms + "'"
+        quoted_search_terms_star = [t for t in quoted_search_terms if '*' in t]
+        quoted_search_terms = [t for t in quoted_search_terms if '*' not in t]
+
+        if(len(quoted_search_terms) > 0 and len(quoted_search_terms_star) > 0):
+            quoted_search_terms = '"' + '","'.join(quoted_search_terms) + '",' + ','.join(quoted_search_terms_star)
+        elif(len(quoted_search_terms) > 0 and len(quoted_search_terms_star) < 1):
+            quoted_search_terms = '"' + '","'.join(quoted_search_terms) + '"'
+        elif(len(quoted_search_terms) < 1 and len(quoted_search_terms_star) > 0):
+            quoted_search_terms = ','.join(quoted_search_terms_star)
+        else:
+            raise Exception("No search terms provided")
+
+        print quoted_search_terms
         try:
-            results = solr.search(search_terms, rows=10000)
+            results = solr.search(quoted_search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             if(len(search_terms_array) < 1):
                 raise Exception("Search term(s) not found in this network")
