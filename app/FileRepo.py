@@ -30,7 +30,7 @@ class NDExFileRepository():
         self.uuid = uuid
         self.repo_directory = app.repo_directory
         self.aspect_map = {}
-        self.ndex_gsmall = {}
+        self.ndex_g = {}
         self.ndex_gsmall_searched = {}
         self.metadata_dict = {}
         self.node = []
@@ -117,10 +117,10 @@ class NDExFileRepository():
         network_cx =  self.load_aspect('full_network')
         self.nodes = self.load_aspect('nodes')
         ndex_gsmall = NdexGraph(network_cx)
-        self.ndex_gsmall = ndex_gsmall
+        self.ndex_g = ndex_gsmall
         self.aspect_list = self.get_aspects()
 
-        return self.ndex_gsmall
+        return self.ndex_g
 
     #================================================
     # LOAD MINIMUM CX FROM REPO USING ASPECTS (JSON)
@@ -178,7 +178,7 @@ class NDExFileRepository():
         else:
             raise Exception("No edges found. Edges are required in aspects")
 
-        self.ndex_gsmall = ndex_gsmall
+        self.ndex_g = ndex_gsmall
         self.aspect_list = self.get_aspects()
         return ndex_gsmall
 
@@ -274,11 +274,11 @@ class NDExFileRepository():
                 ndex_gsmall.create_from_aspects(aspect_cx, 'cartesianLayout')
                 self.metadata_dict['cartesianLayout'] = 0
 
-        self.ndex_gsmall = ndex_gsmall
+        self.ndex_g = ndex_gsmall
         return ndex_gsmall
 
     def get_ndex_gsmall(self):
-        return self.ndex_gsmall
+        return self.ndex_g
 
     def knbrs(self, G, start, k):
         neighbors = {}
@@ -290,7 +290,6 @@ class NDExFileRepository():
 
     def get_n_step_neighbors(self, n_step, search_terms):
         search_terms_dict = {k:0 for k in search_terms}
-        n = self.gsmall.nodes()
 
         # Initialize
         for search_term_i in search_terms:
@@ -374,6 +373,58 @@ class NDExFileRepository():
 
 
     '''returns the found nodes and their n-step neighbors'''
+    def search_network_new(self, search_terms, depth=1):
+        if(type(depth) is not int):
+            raise Exception("Depth must be an integer")
+
+        start_time = time.time()
+        solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
+        search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
+        quoted_search_terms = re.split(', |,| ',search_terms)
+        quoted_search_terms_star = [t for t in quoted_search_terms if '*' in t]
+        quoted_search_terms = [t for t in quoted_search_terms if '*' not in t]
+
+        if(len(quoted_search_terms) > 0 and len(quoted_search_terms_star) > 0):
+            quoted_search_terms = '"' + '","'.join(quoted_search_terms) + '",' + ','.join(quoted_search_terms_star)
+        elif(len(quoted_search_terms) > 0 and len(quoted_search_terms_star) < 1):
+            quoted_search_terms = '"' + '","'.join(quoted_search_terms) + '"'
+        elif(len(quoted_search_terms) < 1 and len(quoted_search_terms_star) > 0):
+            quoted_search_terms = ','.join(quoted_search_terms_star)
+        else:
+            raise Exception("No search terms provided")
+
+        print quoted_search_terms
+        try:
+            results = solr.search(quoted_search_terms, rows=10000)
+            search_terms_array = [int(n['id']) for n in results.docs]
+            if(len(search_terms_array) < 1):
+                return {'message': 'No nodes found'}
+
+            #print 'Initial Search Terms: ' + dumps(search_terms_array)
+            app.get_logger('PERFORMANCE').warning('SOLR time: ' + str(time.time() - start_time))
+            print 'SOLR time: ' + str(time.time() - start_time)
+
+            #==========================================
+            # GET THE NODES in the n-step neighborhood
+            #==========================================
+            #full network --> self.ndex_g
+
+
+
+            #subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
+        except SolrError as se:
+            if('404' in se.message):
+                app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
+                raise Exception("Network not found (SOLR)")
+            #raise SolrError(se)
+        #except Exception as e:
+        #    raise Exception(e.message)
+
+        return None
+
+
+
+    '''returns the found nodes and their n-step neighbors'''
     def search_network(self, search_terms, depth=1):
         if(type(depth) is not int):
             raise Exception("Depth must be an integer")
@@ -399,7 +450,7 @@ class NDExFileRepository():
             results = solr.search(quoted_search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             if(len(search_terms_array) < 1):
-                raise Exception("Search term(s) not found in this network")
+                return {'message': 'No nodes found'}
 
             #print 'Initial Search Terms: ' + dumps(search_terms_array)
             app.get_logger('PERFORMANCE').warning('SOLR time: ' + str(time.time() - start_time))
@@ -411,7 +462,14 @@ class NDExFileRepository():
             subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
 
             start_time = time.time()
-            self.ndex_gsmall_searched = self.ndex_gsmall.subgraph_new(subgraph_nodes)
+
+
+
+            self.ndex_gsmall_searched = self.ndex_g.subgraph_new(subgraph_nodes)
+
+
+
+
             app.get_logger('PERFORMANCE').warning('Subgraph time: ' + str(time.time() - start_time))
             print 'Subgraph time: ' + str(time.time() - start_time)
 
@@ -568,9 +626,9 @@ class NDExFileRepository():
                     d = nodeAttribute['d']
                     if d == 'boolean':
                         value = value.lower() == 'true'
-                if 's' in nodeAttribute or name not in self.ndex_gsmall.node[id]:
+                if 's' in nodeAttribute or name not in self.ndex_g.node[id]:
                     #self.ndex_gsmall_searched.graph[name] = value
-                    self.ndex_gsmall.set_node_attribute(id, name, value)
+                    self.ndex_g.set_node_attribute(id, name, value)
 
     def load_filtered_edge_attributes(self):
         if('edgeAttributes' in self.aspect_list):
@@ -613,7 +671,7 @@ class NDExFileRepository():
                     if d == 'boolean':
                         value = value.lower() == 'true'
                 try:
-                    self.ndex_gsmall.set_edge_attribute(id,name,value)
+                    self.ndex_g.set_edge_attribute(id,name,value)
                 except Exception:
                     myMessage="not found.  moving on."
 
@@ -802,13 +860,13 @@ class NDExFileRepository():
         #==========================================
         # GET THE NODES in the n-step neighborhood
         #==========================================
-        n = self.ndex_gsmall.nodes()
+        n = self.ndex_g.nodes()
         for i in range(depth):
             subgraph_nodes = []
             for term_id in search_terms_array:
                 if(term_id in n):
                     subgraph_nodes.append(term_id)
-                    add_these_nodes = self.ndex_gsmall.neighbors(term_id)
+                    add_these_nodes = self.ndex_g.neighbors(term_id)
                     for add_node in add_these_nodes:
                         if(add_node not in subgraph_nodes):
                             subgraph_nodes.append(add_node)
@@ -817,18 +875,18 @@ class NDExFileRepository():
 
         #filtered_edge_ids = self.get_filtered_edge_ids(subgraph_nodes)
 
-        ndex_gsmall_sub = self.ndex_gsmall.subgraph_new(subgraph_nodes)
+        ndex_gsmall_sub = self.ndex_g.subgraph_new(subgraph_nodes)
 
         sub_nodes = ndex_gsmall_sub.nodes()
         remove_these_nodes = []
         keep_these_nodes = []
-        for full_node in self.ndex_gsmall.nodes():
+        for full_node in self.ndex_g.nodes():
             if(full_node not in sub_nodes):
                 remove_these_nodes.append(full_node)
             else:
                 keep_these_nodes.append(full_node)
 
-        self.ndex_gsmall_searched = self.ndex_gsmall#.copy()
+        self.ndex_gsmall_searched = self.ndex_g#.copy()
 
         self.ndex_gsmall_searched.remove_nodes_from(remove_these_nodes)
 
@@ -837,7 +895,7 @@ class NDExFileRepository():
         return self.ndex_gsmall_searched.to_cx()
 
     def get_filtered_edge_ids(self, n_id_list):
-        return [key for s, t, key in self.ndex_gsmall.edges_iter(n_id_list, keys=True) if s in n_id_list and t in n_id_list]
+        return [key for s, t, key in self.ndex_g.edges_iter(n_id_list, keys=True) if s in n_id_list and t in n_id_list]
 
 
     def get_nodes_and_edges(self):
