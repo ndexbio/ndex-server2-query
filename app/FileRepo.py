@@ -49,6 +49,8 @@ class NDExFileRepository():
                               'nodeCitations','nodes','nodeSupports','supports','subNetworks','reifiedEdges',
                               'cyVisualProperties','visualProperties']
         self.aspect_list = None
+        self.empty_result = [{"numberVerification": [{"longNumber": 281474976710655}]},{"metaData": [{"elementCount": 0,"idCounter": 0,"name": "nodes"},
+                            {"elementCount": 0,"idCounter": 0,"name": "edges"}]},{"nodes": []},{"edges": []},{"status": [{"error": "","success": True}]}]
 
         if(uuid is None):
             raise Exception('UID missing.  Please provide the network id')
@@ -450,7 +452,7 @@ class NDExFileRepository():
             results = solr.search(quoted_search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             if(len(search_terms_array) < 1):
-                return {'message': 'No nodes found'}
+                return self.empty_result
 
             #print 'Initial Search Terms: ' + dumps(search_terms_array)
             app.get_logger('PERFORMANCE').warning('SOLR time: ' + str(time.time() - start_time))
