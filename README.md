@@ -31,3 +31,5 @@ gevent
 gevent_websocket
 
 bottle
+
+pysolr

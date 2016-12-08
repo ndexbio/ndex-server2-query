@@ -17,10 +17,10 @@ from app import temp_append_path
 # LOCAL PACKAGE OF NETWORKN
 # INSTEAD OF PIP INSTALLED VERSION
 #==================================
-sys.path.append(app.temp_append_path)
-from networkn import NdexGraph
+#sys.path.append(app.temp_append_path)
+#from networkn import NdexGraph
 
-#from ndex.networkn import NdexGraph
+from ndex.networkn import NdexGraph
 #from ndex.client import Ndex
 
 class NDExFileRepository():
@@ -372,7 +372,9 @@ class NDExFileRepository():
                     yield char
 
 
-    '''returns the found nodes and their n-step neighbors'''
+    '''finds the nodes and edges in an n-step search of the ndex graph,
+    then removes all of the other nodes and edges, destructively changing
+    the graph into a query result'''
     def search_network_new(self, search_terms, depth=1):
         if(type(depth) is not int):
             raise Exception("Depth must be an integer")
@@ -405,11 +407,37 @@ class NDExFileRepository():
             print 'SOLR time: ' + str(time.time() - start_time)
 
             #==========================================
-            # GET THE NODES in the n-step neighborhood
+            # GET the NODES and EDGES in the n-step neighborhood
             #==========================================
-            #full network --> self.ndex_g
+            # the full network from NDEx --> self.ndex_g
+            # note that the search returns redundant lists of node and edge ids,
+            # so it is important that the 'set' operator is used
+            # on them before we proceed with modifying ndex_g
 
+            node_id_set, edge_id_set = self.n_step_search(search_terms_array, depth)
 
+            print "search done"
+
+            node_ids_to_remove = list(node_id_set.difference(set(self.ndex_g.nodes())))
+
+            edge_ids_to_remove = list(edge_id_set.difference(set(self.ndex_g.edges())))
+
+            for edge_id in edge_ids_to_remove:
+                self.ndex_g.remove_edge_by_id(edge_id)
+
+            for node_id in node_ids_to_remove:
+                self.ndex_g.remove_node(node_id)
+
+            print "removal done"
+
+            app.get_logger('PERFORMANCE').warning('Subgraph time: ' + str(time.time() - start_time))
+            print 'Subgraph time: ' + str(time.time() - start_time)
+
+            #self.ndex_g.write_to("Users/dexter/desktop/test_query.cx")
+
+            print "wrote file"
+
+            return self.ndex_g.to_cx(md_dict=self.metadata_dict)
 
             #subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
         except SolrError as se:
@@ -418,11 +446,37 @@ class NDExFileRepository():
                 raise Exception("Network not found (SOLR)")
             #raise SolrError(se)
         #except Exception as e:
-        #    raise Exception(e.message)
+            #raise Exception(e.message)
 
         return None
 
+    def n_step_search(self, starting_node_ids, depth):
+        if depth > 3:
+            raise ValueError("search depth cannot be greater than 3")
 
+        all_node_ids = []
+        all_edge_ids = []
+
+        all_node_ids.extend(starting_node_ids)
+
+        for i in range(depth):
+
+            next_node_ids = []
+            out_edges = self.ndex_g.out_edges(starting_node_ids, keys=True)
+            for _, target_id, edge_id in out_edges:
+                all_edge_ids.append(edge_id)
+                all_node_ids.append(target_id)
+                next_node_ids.append(target_id)
+
+            in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
+            for source_id, _, edge_id in in_edges:
+                all_edge_ids.append(edge_id)
+                all_node_ids.append(source_id)
+                next_node_ids.append(source_id)
+
+            starting_node_ids = next_node_ids
+
+        return set(all_node_ids), set(all_edge_ids)
 
     '''returns the found nodes and their n-step neighbors'''
     def search_network(self, search_terms, depth=1):
