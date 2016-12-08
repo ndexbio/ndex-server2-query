@@ -433,6 +433,9 @@ class NDExFileRepository():
             for node_id in node_ids_to_remove:
                 self.ndex_g.remove_node(node_id)
 
+            # clear cartesian layout
+            self.ndex_g.pos = {}
+
             print "removal done"
 
             app.get_logger('PERFORMANCE').warning('Subgraph time: ' + str(time.time() - start_time))
@@ -469,17 +472,21 @@ class NDExFileRepository():
             next_node_ids = []
             out_edges = self.ndex_g.out_edges(starting_node_ids, keys=True)
             for _, target_id, edge_id in out_edges:
-                if(len(all_edge_ids) < 500):
+                if(len(all_edge_ids) < max_edges):
                     all_edge_ids.append(edge_id)
                     all_node_ids.append(target_id)
                     next_node_ids.append(target_id)
+                else:
+                    break
 
             in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
             for source_id, _, edge_id in in_edges:
-                if(len(all_edge_ids) < 500):
+                if(len(all_edge_ids) < max_edges):
                     all_edge_ids.append(edge_id)
                     all_node_ids.append(source_id)
                     next_node_ids.append(source_id)
+                else:
+                    break
 
             starting_node_ids = next_node_ids
 
