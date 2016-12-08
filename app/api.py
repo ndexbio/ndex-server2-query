@@ -37,7 +37,7 @@ def api_query_get_by_id(id):
     else:
         return {'message': 'not found'}
 
-@api.post('/v1/network/:id/query_new')
+@api.post('/v1/network/:id/query')
 def api_query_get_by_id_post(id):
     search_parms = request.json
 
@@ -66,7 +66,7 @@ def api_query_get_by_id_post(id):
         return {'message': 'not found'}
 
 
-@api.post('/v1/network/:id/query')
+@api.post('/v1/network/:id/query_old')
 def api_query_get_by_id_post(id):
     search_parms = request.json
 

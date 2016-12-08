@@ -420,9 +420,12 @@ class NDExFileRepository():
 
             print "search done"
 
-            node_ids_to_remove = list(node_id_set.difference(set(self.ndex_g.nodes())))
+            node_ids_to_remove = list(set(self.ndex_g.nodes()).difference(node_id_set))
 
-            edge_ids_to_remove = list(edge_id_set.difference(set(self.ndex_g.edges())))
+
+            edges = [id for s,t,id in self.ndex_g.edges(keys=True)]
+
+            edge_ids_to_remove = list(set(edges).difference(edge_id_set))
 
             for edge_id in edge_ids_to_remove:
                 self.ndex_g.remove_edge_by_id(edge_id)
