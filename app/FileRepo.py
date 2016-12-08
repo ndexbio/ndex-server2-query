@@ -377,7 +377,7 @@ class NDExFileRepository():
     '''finds the nodes and edges in an n-step search of the ndex graph,
     then removes all of the other nodes and edges, destructively changing
     the graph into a query result'''
-    def search_network_new(self, search_terms, depth=1):
+    def search_network_new(self, search_terms, depth=1, max_edges=500):
         if(type(depth) is not int):
             raise Exception("Depth must be an integer")
 
@@ -416,7 +416,7 @@ class NDExFileRepository():
             # so it is important that the 'set' operator is used
             # on them before we proceed with modifying ndex_g
 
-            node_id_set, edge_id_set = self.n_step_search(search_terms_array, depth)
+            node_id_set, edge_id_set = self.n_step_search(search_terms_array, depth, max_edges)
 
             print "search done"
 
@@ -455,7 +455,7 @@ class NDExFileRepository():
 
         return None
 
-    def n_step_search(self, starting_node_ids, depth):
+    def n_step_search(self, starting_node_ids, depth, max_edges):
         if depth > 3:
             raise ValueError("search depth cannot be greater than 3")
 
@@ -469,15 +469,17 @@ class NDExFileRepository():
             next_node_ids = []
             out_edges = self.ndex_g.out_edges(starting_node_ids, keys=True)
             for _, target_id, edge_id in out_edges:
-                all_edge_ids.append(edge_id)
-                all_node_ids.append(target_id)
-                next_node_ids.append(target_id)
+                if(len(all_edge_ids) < 500):
+                    all_edge_ids.append(edge_id)
+                    all_node_ids.append(target_id)
+                    next_node_ids.append(target_id)
 
             in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
             for source_id, _, edge_id in in_edges:
-                all_edge_ids.append(edge_id)
-                all_node_ids.append(source_id)
-                next_node_ids.append(source_id)
+                if(len(all_edge_ids) < 500):
+                    all_edge_ids.append(edge_id)
+                    all_node_ids.append(source_id)
+                    next_node_ids.append(source_id)
 
             starting_node_ids = next_node_ids
 
