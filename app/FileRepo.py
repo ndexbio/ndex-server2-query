@@ -382,6 +382,7 @@ class NDExFileRepository():
             raise Exception("Depth must be an integer")
 
         start_time = time.time()
+        overall_start_time = time.time()
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
         search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
         quoted_search_terms = re.split(', |,| ',search_terms)
@@ -416,7 +417,9 @@ class NDExFileRepository():
             # so it is important that the 'set' operator is used
             # on them before we proceed with modifying ndex_g
 
+            start_time = time.time()
             node_id_set, edge_id_set = self.n_step_search(search_terms_array, depth, max_edges)
+            app.get_logger('PERFORMANCE').warning('N Step time: ' + str(time.time() - start_time))
 
             print "search done"
 
@@ -427,23 +430,27 @@ class NDExFileRepository():
 
             edge_ids_to_remove = list(set(edges).difference(edge_id_set))
 
+            start_time = time.time()
             for edge_id in edge_ids_to_remove:
                 self.ndex_g.remove_edge_by_id(edge_id)
+            app.get_logger('PERFORMANCE').warning('Edge remove time: ' + str(time.time() - start_time))
 
+            start_time = time.time()
             for node_id in node_ids_to_remove:
                 self.ndex_g.remove_node(node_id)
+            app.get_logger('PERFORMANCE').warning('Node remove time: ' + str(time.time() - start_time))
 
             # clear cartesian layout
             self.ndex_g.pos = {}
 
             print "removal done"
 
-            app.get_logger('PERFORMANCE').warning('Subgraph time: ' + str(time.time() - start_time))
+            app.get_logger('PERFORMANCE').warning('Overall subgraph time: ' + str(time.time() - overall_start_time))
             print 'Subgraph time: ' + str(time.time() - start_time)
 
             #self.ndex_g.write_to("Users/dexter/desktop/test_query.cx")
 
-            print "wrote file"
+            #print "wrote file"
 
             return self.ndex_g.to_cx(md_dict=self.metadata_dict)
 
