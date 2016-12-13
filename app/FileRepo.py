@@ -488,7 +488,7 @@ class NDExFileRepository():
                     all_node_ids.append(target_id)
                     next_node_ids.append(target_id)
                 else:
-                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ")")
+                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ") Please refine your query.")
 
             in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
             for source_id, _, edge_id in in_edges:
@@ -497,7 +497,7 @@ class NDExFileRepository():
                     all_node_ids.append(source_id)
                     next_node_ids.append(source_id)
                 else:
-                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ")")
+                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ") Please refine your query.")
 
             starting_node_ids = next_node_ids
 
