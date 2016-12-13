@@ -460,6 +460,10 @@ class NDExFileRepository():
                 app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
                 raise Exception("Network not found (SOLR)")
             #raise SolrError(se)
+        except StopIteration as si:
+                app.get_logger('QUERY').warning("Found more than max edges.  Raising exception")
+                raise StopIteration(si.message)
+
         #except Exception as e:
             #raise Exception(e.message)
 
@@ -484,7 +488,7 @@ class NDExFileRepository():
                     all_node_ids.append(target_id)
                     next_node_ids.append(target_id)
                 else:
-                    break
+                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ")")
 
             in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
             for source_id, _, edge_id in in_edges:
@@ -493,7 +497,7 @@ class NDExFileRepository():
                     all_node_ids.append(source_id)
                     next_node_ids.append(source_id)
                 else:
-                    break
+                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ")")
 
             starting_node_ids = next_node_ids
 
