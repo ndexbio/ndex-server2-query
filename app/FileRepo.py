@@ -452,6 +452,21 @@ class NDExFileRepository():
 
             #print "wrote file"
 
+            eventProperties = [
+                {
+                    "name": "query terms",
+                    "value": search_terms,
+                    "type": "SimplePropertyValuePair"
+                },
+                {
+                    "name": "query depth",
+                    "value": depth,
+                    "type": "SimplePropertyValuePair"
+                }
+            ]
+
+            self.ndex_g.update_provenance("Neighborhood Query", entity_propsx=eventProperties)
+
             return self.ndex_g.to_cx(md_dict=self.metadata_dict)
 
             #subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
