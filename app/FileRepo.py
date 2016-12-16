@@ -465,7 +465,7 @@ class NDExFileRepository():
                 }
             ]
 
-            self.ndex_g.update_provenance("Neighborhood Query", entity_propsx=eventProperties)
+            self.ndex_g.update_provenance("Neighborhood Query", entity_props=eventProperties)
 
             return self.ndex_g.to_cx(md_dict=self.metadata_dict)
 
