@@ -8,11 +8,11 @@ mongodb_uri = 'mongodb://localhost'
 #solr_url = 'http://preview.ndexbio.org:8983/solr/'
 solr_url = 'http://dev2.ndexbio.org:8983/solr/'
 
-repo_directory = '/Users/aarongary/Development/DataSets/NDEx/server2/data/'
-#repo_directory = '/opt/ndex/data/'
+#repo_directory = '/Users/aarongary/Development/DataSets/NDEx/server2/data/'
+repo_directory = '/opt/ndex/data/'
 
-temp_append_path = '/Users/aarongary/Development/Projects/ndex-python/ndex'
-#temp_append_path = '/opt/ndex/query_engine/ndex-python/ndex'
+#temp_append_path = '/Users/aarongary/Development/Projects/ndex-python/ndex'
+temp_append_path = '/opt/ndex/query_engine/ndex-python/ndex'
 
 
 def get_logger(name, level=logging.DEBUG):
