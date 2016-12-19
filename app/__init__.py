@@ -6,7 +6,7 @@ root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 log_path = os.path.join(root, 'logs')
 mongodb_uri = 'mongodb://localhost'
 #solr_url = 'http://preview.ndexbio.org:8983/solr/'
-solr_url = 'http://dev.ndexbio.org:8983/solr/'
+solr_url = 'http://dev2.ndexbio.org:8983/solr/'
 
 repo_directory = '/Users/aarongary/Development/DataSets/NDEx/server2/data/'
 #repo_directory = '/opt/ndex/data/'

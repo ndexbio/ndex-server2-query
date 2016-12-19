@@ -489,17 +489,17 @@ class NDExFileRepository():
             raise ValueError("search depth cannot be greater than 3")
 
         all_node_ids = []
-        all_edge_ids = []
+        all_edge_ids = set()
 
         all_node_ids.extend(starting_node_ids)
 
         for i in range(depth):
 
             next_node_ids = []
-            out_edges = self.ndex_g.out_edges(starting_node_ids, keys=True)
+            out_edges = list(set(self.ndex_g.out_edges(starting_node_ids, keys=True)))
             for _, target_id, edge_id in out_edges:
                 if(len(all_edge_ids) < max_edges):
-                    all_edge_ids.append(edge_id)
+                    all_edge_ids.add(edge_id)
                     all_node_ids.append(target_id)
                     next_node_ids.append(target_id)
                 else:
@@ -508,7 +508,7 @@ class NDExFileRepository():
             in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
             for source_id, _, edge_id in in_edges:
                 if(len(all_edge_ids) < max_edges):
-                    all_edge_ids.append(edge_id)
+                    all_edge_ids.add(edge_id)
                     all_node_ids.append(source_id)
                     next_node_ids.append(source_id)
                 else:
