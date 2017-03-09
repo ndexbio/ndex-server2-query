@@ -377,6 +377,7 @@ class NDExFileRepository():
     '''finds the nodes and edges in an n-step search of the ndex graph,
     then removes all of the other nodes and edges, destructively changing
     the graph into a query result'''
+
     def search_network_new(self, search_terms, depth=1, max_edges=500):
         if(type(depth) is not int):
             raise Exception("Depth must be an integer")
@@ -384,21 +385,8 @@ class NDExFileRepository():
         start_time = time.time()
         overall_start_time = time.time()
         solr = pysolr.Solr(solr_url + self.uuid + '/', timeout=10)
-        search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
-        quoted_search_terms = re.split(', |,| ',search_terms)
-        quoted_search_terms_star = [t for t in quoted_search_terms if '*' in t]
-        quoted_search_terms = [t for t in quoted_search_terms if '*' not in t]
+        #search_terms = "".join([nextStr for nextStr in self.escapedSeq(search_terms)])
 
-        if(len(quoted_search_terms) > 0 and len(quoted_search_terms_star) > 0):
-            quoted_search_terms = '"' + '","'.join(quoted_search_terms) + '",' + ','.join(quoted_search_terms_star)
-        elif(len(quoted_search_terms) > 0 and len(quoted_search_terms_star) < 1):
-            quoted_search_terms = '"' + '","'.join(quoted_search_terms) + '"'
-        elif(len(quoted_search_terms) < 1 and len(quoted_search_terms_star) > 0):
-            quoted_search_terms = ','.join(quoted_search_terms_star)
-        else:
-            raise Exception("No search terms provided")
-
-        print quoted_search_terms
         try:
             results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
