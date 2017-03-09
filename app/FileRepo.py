@@ -400,7 +400,7 @@ class NDExFileRepository():
 
         print quoted_search_terms
         try:
-            results = solr.search(quoted_search_terms, rows=10000)
+            results = solr.search(search_terms, rows=10000)
             search_terms_array = [int(n['id']) for n in results.docs]
             if(len(search_terms_array) < 1):
                 return {'message': 'No nodes found'}

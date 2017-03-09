@@ -59,8 +59,12 @@ def api_query_get_by_id_post(id):
 
             return dict(data=ndexFileRepository.search_network_new(search_parms['terms'],search_parms['depth'], max_edges=1500))
         except Exception as e:
-            log.error(e.message)
-            return HTTPResponse(dict(message=e.message), status=500)
+            if len(e.message) < 1:
+                log.error(e.strerror)
+                return HTTPResponse(dict(message=e.strerror), status=500)
+            else:
+                log.error(e.message)
+                return HTTPResponse(dict(message=e.message), status=500)
 
     else:
         return {'message': 'not found'}
