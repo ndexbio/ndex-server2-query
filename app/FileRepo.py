@@ -462,6 +462,9 @@ class NDExFileRepository():
             if('404' in se.message):
                 app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
                 raise Exception("Network not found (SOLR)")
+            else:
+                app.get_logger('SOLR').warning('Network error ' + self.uuid + ' on ' + solr_url + ' server. ' + se.message)
+                raise Exception(se.message)
             #raise SolrError(se)
         except StopIteration as si:
                 app.get_logger('QUERY').warning("Found more than max edges.  Raising exception")
