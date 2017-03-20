@@ -2,32 +2,27 @@
 
 import sys
 import argparse
-from gevent.pywsgi import WSGIServer
-from geventwebsocket.handler import WebSocketHandler
 import bottle
 from bottle import Bottle, route, redirect, default_app, request, abort, HTTPResponse, response
 import time
-import json
 from app.adv_query import aquery_process
+import app
+from app.FileRepo import NDExFileRepository
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
-import app
-from app.util import serialize
-from app.FileRepo import NDExFileRepository
-#from bson.json_util import dumps
+api = default_app()
 
-api = Bottle()
-app = default_app()
+log = app.get_logger('api')
 
-#log = app.get_logger('api')
-
-#@api.get('/message/:message')
 @bottle.get('/message/<message>')
 def api_message(message):
     return 'Hi: ' + message
 
-#@api.get('/v1/network/:id/query')
+@bottle.get('/')
+def home():
+    return '<strong>Hello from NDEx Advanced Query Service!</strong>'
+
 @bottle.get('/v1/network/<id>/query')
 def api_query_get_by_id(id):
     #id = request.query.get('id')
@@ -42,7 +37,6 @@ def api_query_get_by_id(id):
     else:
         return {'message': 'not found'}
 
-#@api.post('/v1/network/:id/query')
 @route('/v1/network/<id>/query' , method=['OPTIONS','POST'] )
 def api_query_get_by_id_post(id):
     search_parms = request.json
@@ -77,7 +71,6 @@ def api_query_get_by_id_post(id):
         return {'message': 'not found'}
 
 
-#@api.post('/v1/network/:id/query_old')
 @route('/v1/network/<id>/query_old' , method=['OPTIONS','POST'] )
 def api_query_get_by_id_post(id):
     search_parms = request.json
@@ -106,19 +99,14 @@ def api_query_get_by_id_post(id):
     else:
         return {'message': 'not found'}
 
-# /search/network/{networkId}/query?size={limit}
-#@api.post('/search/network/:networkId/query')
 @route('/search/network/<networkId>/query' , method=['OPTIONS','POST'] )
 def get_advanced_query_request(networkId):
     size = request.query.get("size")
     request_json = request.json # json.load(request.body)
-    #print(json.dumps(request_json, indent=3, sort_keys=True))
 
     return_network = aquery_process.process_advanced_query(networkId, size, request_json)
 
     return dict(data=return_network.to_cx())
-
-
 
 class EnableCors(object):
     name = 'enable_cors'
@@ -137,16 +125,6 @@ class EnableCors(object):
 
         return _enable_cors
 
-#api.install(EnableCors())
-
-
-
-
-@bottle.get('/')
-def home():
-    return '<strong>Hello from NDEx Advanced Query Service!</strong>'
-
-
 # run the web server
 def main():
 
@@ -158,8 +136,8 @@ def main():
     print 'starting web server on port %s' % args.port
     print 'press control-c to quit'
 
-    app.install(EnableCors())
-    app.run(host='0.0.0.0', port=args.port)
+    api.install(EnableCors())
+    api.run(host='0.0.0.0', port=args.port)
 
     #try:
     #    server = WSGIServer(('0.0.0.0', args.port), api, handler_class=WebSocketHandler)
