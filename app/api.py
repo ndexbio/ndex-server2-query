@@ -5,7 +5,7 @@ import argparse
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import bottle
-from bottle import Bottle, redirect, static_file, request, abort, HTTPResponse, response
+from bottle import Bottle, route, redirect, default_app, request, abort, HTTPResponse, response
 import time
 import json
 from app.adv_query import aquery_process
@@ -18,14 +18,17 @@ from app.FileRepo import NDExFileRepository
 #from bson.json_util import dumps
 
 api = Bottle()
+app = default_app()
 
-log = app.get_logger('api')
+#log = app.get_logger('api')
 
-@api.get('/message/:message')
+#@api.get('/message/:message')
+@bottle.get('/message/<message>')
 def api_message(message):
     return 'Hi: ' + message
 
-@api.get('/v1/network/:id/query')
+#@api.get('/v1/network/:id/query')
+@bottle.get('/v1/network/<id>/query')
 def api_query_get_by_id(id):
     #id = request.query.get('id')
     query_terms = request.query.get('terms')
@@ -39,7 +42,8 @@ def api_query_get_by_id(id):
     else:
         return {'message': 'not found'}
 
-@api.post('/v1/network/:id/query')
+#@api.post('/v1/network/:id/query')
+@route('/v1/network/<id>/query' , method=['OPTIONS','POST'] )
 def api_query_get_by_id_post(id):
     search_parms = request.json
 
@@ -73,7 +77,8 @@ def api_query_get_by_id_post(id):
         return {'message': 'not found'}
 
 
-@api.post('/v1/network/:id/query_old')
+#@api.post('/v1/network/:id/query_old')
+@route('/v1/network/<id>/query_old' , method=['OPTIONS','POST'] )
 def api_query_get_by_id_post(id):
     search_parms = request.json
 
@@ -102,7 +107,8 @@ def api_query_get_by_id_post(id):
         return {'message': 'not found'}
 
 # /search/network/{networkId}/query?size={limit}
-@api.post('/search/network/:networkId/query')
+#@api.post('/search/network/:networkId/query')
+@route('/search/network/<networkId>/query' , method=['OPTIONS','POST'] )
 def get_advanced_query_request(networkId):
     size = request.query.get("size")
     request_json = request.json # json.load(request.body)
@@ -131,30 +137,43 @@ class EnableCors(object):
 
         return _enable_cors
 
-api.install(EnableCors())
+#api.install(EnableCors())
+
+
+
+
+@bottle.get('/')
+def home():
+    return '<strong>Hello from NDEx Advanced Query Service!</strong>'
+
 
 # run the web server
 def main():
+
     status = 0
     parser = argparse.ArgumentParser()
-    parser.add_argument('port', nargs='?', type=int, help='HTTP port', default=80)
+    parser.add_argument('port', nargs='?', type=int, help='HTTP port', default=8072)
     args = parser.parse_args()
 
     print 'starting web server on port %s' % args.port
     print 'press control-c to quit'
-    try:
-        server = WSGIServer(('0.0.0.0', args.port), api, handler_class=WebSocketHandler)
-        log.info('entering main loop')
-        server.serve_forever()
-    except KeyboardInterrupt:
-        log.info('exiting main loop')
-    except Exception as e:
-        str = 'could not start web server: %s' % e
-        log.error(str)
-        print str
-        status = 1
 
-    log.info('exiting with status %d', status)
+    app.install(EnableCors())
+    app.run(host='0.0.0.0', port=args.port)
+
+    #try:
+    #    server = WSGIServer(('0.0.0.0', args.port), api, handler_class=WebSocketHandler)
+    #    log.info('entering main loop')
+    #    server.serve_forever()
+    #except KeyboardInterrupt:
+    #    log.info('exiting main loop')
+    #except Exception as e:
+    #    str = 'could not start web server: %s' % e
+    ##    log.error(str)
+    #    print str
+    #    status = 1
+
+    #log.info('exiting with status %d', status)
     return status
 
 
