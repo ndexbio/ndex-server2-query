@@ -7,6 +7,8 @@ from geventwebsocket.handler import WebSocketHandler
 import bottle
 from bottle import Bottle, redirect, static_file, request, abort, HTTPResponse
 import time
+import json
+from app.adv_query import aquery_process
 
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
@@ -98,6 +100,17 @@ def api_query_get_by_id_post(id):
 
     else:
         return {'message': 'not found'}
+
+# /search/network/{networkId}/query?size={limit}
+@api.post('/search/network/:networkId/query')
+def get_advanced_query_request(networkId):
+    size = request.query.get("size")
+    request_json = json.load(request.body)
+    #print(json.dumps(request_json, indent=3, sort_keys=True))
+
+    return_network = aquery_process.process_advanced_query(networkId, size, request_json)
+
+    return dict(data=return_network.to_cx())
 
 # run the web server
 def main():
