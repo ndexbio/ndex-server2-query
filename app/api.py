@@ -5,7 +5,7 @@ import argparse
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 import bottle
-from bottle import Bottle, redirect, static_file, request, abort, HTTPResponse
+from bottle import Bottle, redirect, static_file, request, abort, HTTPResponse, response
 import time
 import json
 from app.adv_query import aquery_process
@@ -105,12 +105,33 @@ def api_query_get_by_id_post(id):
 @api.post('/search/network/:networkId/query')
 def get_advanced_query_request(networkId):
     size = request.query.get("size")
-    request_json = json.load(request.body)
+    request_json = request.json # json.load(request.body)
     #print(json.dumps(request_json, indent=3, sort_keys=True))
 
     return_network = aquery_process.process_advanced_query(networkId, size, request_json)
 
     return dict(data=return_network.to_cx())
+
+
+
+class EnableCors(object):
+    name = 'enable_cors'
+    api = 2
+
+    def apply(self, fn, context):
+        def _enable_cors(*args, **kwargs):
+            # set CORS headers
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
+            if request.method != 'OPTIONS':
+                # actual request; reply with the actual response
+                return fn(*args, **kwargs)
+
+        return _enable_cors
+
+api.install(EnableCors())
 
 # run the web server
 def main():
@@ -135,6 +156,8 @@ def main():
 
     log.info('exiting with status %d', status)
     return status
+
+
 
 if __name__ == '__main__':
     sys.exit(main())
