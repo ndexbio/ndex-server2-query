@@ -6,10 +6,10 @@ import ndex.networkn as networkn
 import time
 import ndex.client as nc
 
-def process_advanced_query(networkId, size, request):
+def process_advanced_query(networkId, size, request, user, password):
     host = 'http://dev.ndexbio.org'
-    user = 'ttt'
-    password = 'ttt'
+    #user = 'ttt'
+    #password = 'ttt'
 
     nc1 = nc.Ndex(host, user, password)
     response = nc1.get_network_as_cx_stream(networkId)
