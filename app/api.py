@@ -3,7 +3,7 @@
 import sys
 import argparse
 import bottle
-from bottle import Bottle, route, redirect, default_app, request, abort, HTTPResponse, response
+from bottle import route, default_app, request, parse_auth, HTTPResponse, response
 import time
 from app.adv_query import aquery_process
 import app
@@ -70,7 +70,6 @@ def api_query_get_by_id_post(id):
     else:
         return {'message': 'not found'}
 
-
 @route('/v1/network/<id>/query_old' , method=['OPTIONS','POST'] )
 def api_query_get_by_id_post(id):
     search_parms = request.json
@@ -101,12 +100,17 @@ def api_query_get_by_id_post(id):
 
 @route('/search/network/<networkId>/query' , method=['OPTIONS','POST'] )
 def get_advanced_query_request(networkId):
-    size = request.query.get("size")
-    request_json = request.json # json.load(request.body)
+    try:
+        size = request.query.get("size")
+        request_json = request.json
+        auth = parse_auth(request.get_header('Authorization', ''))
+        print auth
+        return_network = aquery_process.process_advanced_query(networkId, size, request_json, auth[0], auth[1])
 
-    return_network = aquery_process.process_advanced_query(networkId, size, request_json)
-
-    return dict(data=return_network.to_cx())
+        return dict(data=return_network.to_cx())
+    except Exception as e:
+        log.error(e.message)
+        return HTTPResponse(dict(message=e.message), status=500)
 
 class EnableCors(object):
     name = 'enable_cors'
@@ -114,20 +118,16 @@ class EnableCors(object):
 
     def apply(self, fn, context):
         def _enable_cors(*args, **kwargs):
-            # set CORS headers
             response.headers['Access-Control-Allow-Origin'] = '*'
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-            response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+            response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token, Authorization'
 
             if request.method != 'OPTIONS':
-                # actual request; reply with the actual response
                 return fn(*args, **kwargs)
 
         return _enable_cors
 
-# run the web server
 def main():
-
     status = 0
     parser = argparse.ArgumentParser()
     parser.add_argument('port', nargs='?', type=int, help='HTTP port', default=8072)
@@ -136,25 +136,20 @@ def main():
     print 'starting web server on port %s' % args.port
     print 'press control-c to quit'
 
-    api.install(EnableCors())
-    api.run(host='0.0.0.0', port=args.port)
+    try:
+        log.info('entering main loop')
+        api.install(EnableCors())
+        api.run(host='0.0.0.0', port=args.port)
+    except KeyboardInterrupt:
+        log.info('exiting main loop')
+    except Exception as e:
+        str = 'could not start web server: %s' % e
+        log.error(str)
+        print str
+        status = 1
 
-    #try:
-    #    server = WSGIServer(('0.0.0.0', args.port), api, handler_class=WebSocketHandler)
-    #    log.info('entering main loop')
-    #    server.serve_forever()
-    #except KeyboardInterrupt:
-    #    log.info('exiting main loop')
-    #except Exception as e:
-    #    str = 'could not start web server: %s' % e
-    ##    log.error(str)
-    #    print str
-    #    status = 1
-
-    #log.info('exiting with status %d', status)
+    log.info('exiting with status %d', status)
     return status
-
-
 
 if __name__ == '__main__':
     sys.exit(main())
