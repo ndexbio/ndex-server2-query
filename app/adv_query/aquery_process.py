@@ -62,6 +62,48 @@ def process_advanced_query(networkId, size, request, user, password):
 
     return ndex_g
 
+def process_advanced_query_from_file_repo(ndex_g, size, request):
+    edge_ids_to_remove = []
+    edge_ids_to_keep = []
+
+    edge_filters = get_edge_filters(request)
+    mode, node_filters = get_node_filters(request)
+
+    if 'edgeLimit' in request:
+        edge_limit = request['edgeLimit']
+    else:
+        edge_limit = 1500
+
+    no_of_edges_to_keep = 0
+
+
+    for edge_id, node_ids in iteritems(ndex_g.edgemap):
+
+        source_node_id, target_node_id = node_ids
+        edge = ndex_g[source_node_id][target_node_id][edge_id]
+
+        source_node = ndex_g.node[source_node_id]
+        target_node = ndex_g.node[target_node_id]
+
+        if keep_edge(edge, edge_filters, node_filters, mode, source_node, target_node):
+            edge_ids_to_keep.append(edge_id)
+
+            no_of_edges_to_keep += 1
+
+            if (no_of_edges_to_keep > edge_limit):
+                # the resulting network is too big -- pass for now, but probably return empty set to the caller
+                pass
+        else:
+            edge_ids_to_remove.append(edge_id)
+
+    for edge_id in edge_ids_to_remove:
+        ndex_g.remove_edge_by_id(edge_id)
+
+    ndex_g.remove_orphan_nodes()
+
+    add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_filters)
+
+    return ndex_g
 
 def keep_edge(edge, edge_filters, node_filters, mode, source_node, target_node):
 

@@ -11,6 +11,7 @@ from pysolr import SolrError
 from app import solr_url
 import re
 from app import temp_append_path
+from app.adv_query import aquery_process
 
 #==================================
 # TESTING CODE - NEED TO USE
@@ -456,6 +457,52 @@ class NDExFileRepository():
             self.ndex_g.update_provenance("Neighborhood Query", entity_props=eventProperties)
 
             return self.ndex_g.to_cx(md_dict=self.metadata_dict)
+
+            #subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
+        except SolrError as se:
+            if('404' in se.message):
+                app.get_logger('SOLR').warning('Network not found ' + self.uuid + ' on ' + solr_url + ' server.')
+                raise Exception("Network not found (SOLR)")
+            else:
+                app.get_logger('SOLR').warning('Network error ' + self.uuid + ' on ' + solr_url + ' server. ' + se.message)
+                raise Exception(se.message)
+            #raise SolrError(se)
+        except StopIteration as si:
+                app.get_logger('QUERY').warning("Found more than max edges.  Raising exception")
+                raise StopIteration(si.message)
+
+        #except Exception as e:
+            #raise Exception(e.message)
+
+        return None
+
+    def advanced_search(self, size, search_terms):
+
+        #if(type(size) is not int):
+        #    raise Exception("Size must be an integer")
+
+        try:
+            return_network = aquery_process.process_advanced_query_from_file_repo(self.ndex_g, size, search_terms)
+
+            # clear cartesian layout
+            return_network.pos = {}
+
+            eventProperties = [
+                {
+                    "name": "query terms",
+                    "value": search_terms,
+                    "type": "SimplePropertyValuePair"
+                },
+                {
+                    "name": "query size",
+                    "value": size,
+                    "type": "SimplePropertyValuePair"
+                }
+            ]
+
+            return_network.update_provenance("Advanced Query", entity_props=eventProperties)
+
+            return return_network.to_cx(md_dict=self.metadata_dict)
 
             #subgraph_nodes = self.get_n_step_neighbors(depth, search_terms_array)
         except SolrError as se:

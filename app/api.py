@@ -103,11 +103,16 @@ def get_advanced_query_request(networkId):
     try:
         size = request.query.get("size")
         request_json = request.json
-        auth = parse_auth(request.get_header('Authorization', ''))
-        print auth
-        return_network = aquery_process.process_advanced_query(networkId, size, request_json, auth[0], auth[1])
+        #auth = parse_auth(request.get_header('Authorization', ''))
+        #print auth
 
-        return dict(data=return_network.to_cx())
+        ndexFileRepository = NDExFileRepository(networkId, load_from_cx=True)
+
+        return dict(data=ndexFileRepository.advanced_search(size, request_json))
+
+        #return_network = aquery_process.process_advanced_query(networkId, size, request_json, auth[0], auth[1])
+
+        #return dict(data=return_network.to_cx())
     except Exception as e:
         log.error(e.message)
         return HTTPResponse(dict(message=e.message), status=500)
