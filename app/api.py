@@ -98,7 +98,7 @@ def api_query_get_by_id_post(id):
     else:
         return {'message': 'not found'}
 
-@route('/search/network/<networkId>/advancequery' , method=['OPTIONS','POST'] )
+@route('/search/network/<networkId>/advancedquery' , method=['OPTIONS','POST'] )
 def get_advanced_query_request(networkId):
     try:
         request_json = request.json
