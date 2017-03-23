@@ -12,13 +12,10 @@ def process_advanced_query(networkId, size, request, user, password):
     nc1 = nc.Ndex(host, user, password)
     response = nc1.get_network_as_cx_stream(networkId)
 
-
     cx = response.json()
     ndex_g = networkn.NdexGraph(cx)
 
-
     edge_ids_to_remove = []
-    edge_ids_to_keep = []
 
     edge_filters = get_edge_filters(request)
     mode, node_filters = get_node_filters(request)
@@ -40,8 +37,6 @@ def process_advanced_query(networkId, size, request, user, password):
         target_node = ndex_g.node[target_node_id]
 
         if keep_edge(edge, edge_filters, node_filters, mode, source_node, target_node):
-            edge_ids_to_keep.append(edge_id)
-
             no_of_edges_to_keep += 1
 
             if (no_of_edges_to_keep > edge_limit):
@@ -64,7 +59,6 @@ def process_advanced_query(networkId, size, request, user, password):
 
 def process_advanced_query_from_file_repo(ndex_g, size, request):
     edge_ids_to_remove = []
-    edge_ids_to_keep = []
 
     edge_filters = get_edge_filters(request)
     mode, node_filters = get_node_filters(request)
@@ -86,8 +80,6 @@ def process_advanced_query_from_file_repo(ndex_g, size, request):
         target_node = ndex_g.node[target_node_id]
 
         if keep_edge(edge, edge_filters, node_filters, mode, source_node, target_node):
-            edge_ids_to_keep.append(edge_id)
-
             no_of_edges_to_keep += 1
 
             if (no_of_edges_to_keep > edge_limit):
@@ -131,20 +123,20 @@ def edge_satisfies_edge_query_criteria(edge, edge_filters):
 
 def edge_satisfies_node_query_criteria(edge, node_filters, mode, source_node, target_node):
 
-    # value of mode is one of ["source", "target", "both", "either"]
-    if mode == 'source':
+    # value of mode is one of ["Source", "Target", "Both", "Either"]
+    if mode == 'Source':
         if compare_node_attributes_to_query_criteria(source_node, node_filters):
             return True
         else:
             return False
 
-    if mode == 'target':
+    if mode == 'Target':
         if compare_node_attributes_to_query_criteria(target_node, node_filters):
             return True
         else:
             return False
 
-    if mode == 'either':
+    if mode == 'Either':
         if compare_node_attributes_to_query_criteria(target_node, node_filters):
             return True
         else:
@@ -153,7 +145,7 @@ def edge_satisfies_node_query_criteria(edge, node_filters, mode, source_node, ta
             else:
                 return False
 
-    if mode == 'both':
+    if mode == 'Both':
         if compare_node_attributes_to_query_criteria(target_node, node_filters):
             if compare_node_attributes_to_query_criteria(source_node, node_filters):
                 return True
@@ -183,10 +175,10 @@ def add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_f
 
     if node_filters:
         if mode:
-            if mode.startswith('both'):
-                mode = 'both source and target'
-            elif mode.startswith('either'):
-                mode = 'either source or target'
+            if mode.startswith('Both'):
+                mode = 'Both source and target'
+            elif mode.startswith('Either'):
+                mode = 'Either source or target'
 
             ndex_g.graph['aq:mode'] = mode
 

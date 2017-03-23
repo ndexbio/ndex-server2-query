@@ -98,11 +98,11 @@ def api_query_get_by_id_post(id):
     else:
         return {'message': 'not found'}
 
-@route('/search/network/<networkId>/query' , method=['OPTIONS','POST'] )
+@route('/search/network/<networkId>/advancequery' , method=['OPTIONS','POST'] )
 def get_advanced_query_request(networkId):
     try:
-        size = request.query.get("size")
         request_json = request.json
+        size = request_json['edgeLimit'] if ('edgeLimit' in request_json) else 1500
         #auth = parse_auth(request.get_header('Authorization', ''))
         #print auth
 
