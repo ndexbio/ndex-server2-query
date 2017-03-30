@@ -3,6 +3,7 @@
 import sys
 import argparse
 import bottle
+import traceback
 from bottle import route, default_app, request, parse_auth, HTTPResponse, response
 import time
 from app.adv_query import aquery_process
@@ -102,6 +103,12 @@ def api_query_get_by_id_post(id):
 def get_advanced_query_request(networkId):
     try:
         request_json = request.json
+        if request_json.get('nodeFilter') is None:
+            request_json['nodeFilter'] = {'propertySpecifications': [],'mode': 'Source'}
+
+        if request_json.get('edgeFilter') is None:
+            request_json['edgeFilter'] = {'propertySpecifications': []}
+
         size = request_json['edgeLimit'] if ('edgeLimit' in request_json) else 1500
         #auth = parse_auth(request.get_header('Authorization', ''))
         #print auth
@@ -115,6 +122,7 @@ def get_advanced_query_request(networkId):
         #return dict(data=return_network.to_cx())
     except Exception as e:
         log.error(e.message)
+        traceback.print_exc()
         return HTTPResponse(dict(message=e.message), status=500)
 
 class EnableCors(object):
