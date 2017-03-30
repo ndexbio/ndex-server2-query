@@ -197,6 +197,9 @@ def get_edge_filters(request):
     if 'edgeFilter' not in request.keys():
         return edge_filter
 
+    if request.get('edgeFilter') is None:
+        return edge_filter
+
     if 'propertySpecifications' in request['edgeFilter']:
         request_edge_filter = request['edgeFilter']['propertySpecifications']
 
@@ -225,6 +228,9 @@ def get_node_filters(request):
 
     if 'nodeFilter' not in request.keys():
         return mode, node_filter
+
+    if request.get('nodeFilter') is None:
+        return node_filter
 
     if 'propertySpecifications' in request['nodeFilter']:
         request_node_filter = request['nodeFilter']['propertySpecifications']
