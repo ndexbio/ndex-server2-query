@@ -70,7 +70,6 @@ def process_advanced_query_from_file_repo(ndex_g, size, request):
 
     no_of_edges_to_keep = 0
 
-
     for edge_id, node_ids in iteritems(ndex_g.edgemap):
 
         source_node_id, target_node_id = node_ids
@@ -193,7 +192,7 @@ def add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_f
 
 def get_edge_filters(request):
 
-    edge_filter = None
+    edge_filter = []
 
     if 'edgeFilter' not in request.keys():
         return edge_filter
@@ -221,8 +220,8 @@ def get_edge_filters(request):
 
 def get_node_filters(request):
 
-    node_filter = None
-    mode = None
+    node_filter = []
+    mode = "Source"
 
     if 'nodeFilter' not in request.keys():
         return mode, node_filter
@@ -250,8 +249,6 @@ def get_node_filters(request):
                     node_filter[filter['name']].append(filter['value'])
 
     return mode, node_filter
-
-
 
 def iteritems(d):
     'Factor-out Py2-to-3 differences in dictionary item iterator methods'
