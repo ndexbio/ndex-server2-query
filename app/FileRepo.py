@@ -18,10 +18,10 @@ from app.adv_query import aquery_process
 # LOCAL PACKAGE OF NETWORKN
 # INSTEAD OF PIP INSTALLED VERSION
 #==================================
-sys.path.append(app.temp_append_path)
-from ndex.networkn import NdexGraph
-
+#sys.path.append(app.temp_append_path)
 #from ndex.networkn import NdexGraph
+
+from ndex.networkn import NdexGraph
 #from ndex.client import Ndex
 
 class NDExFileRepository():
