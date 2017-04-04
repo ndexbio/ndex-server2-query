@@ -82,8 +82,9 @@ def process_advanced_query_from_file_repo(ndex_g, size, request):
             no_of_edges_to_keep += 1
 
             if (no_of_edges_to_keep > edge_limit):
+                raise Exception({"message": "Too many edges returned.  Please increase filtering"})
                 # the resulting network is too big -- pass for now, but probably return empty set to the caller
-                pass
+                # pass
         else:
             edge_ids_to_remove.append(edge_id)
 
@@ -121,6 +122,12 @@ def edge_satisfies_edge_query_criteria(edge, edge_filters):
 
 
 def edge_satisfies_node_query_criteria(edge, node_filters, mode, source_node, target_node):
+
+    # handle an empty node_filter
+    if node_filters.get("nodeFilter") is not None:
+        if node_filters["nodeFilter"].get("propertySpecifications") is not None:
+            if len(node_filters["nodeFilter"]["propertySpecifications"]) < 1:
+                return True
 
     # value of mode is one of ["Source", "Target", "Both", "Either"]
     if mode == 'Source':
@@ -222,8 +229,7 @@ def get_edge_filters(request):
 
 
 def get_node_filters(request):
-
-    node_filter = []
+    node_filter = {"nodeFilter": {"propertySpecifications": [],"mode": "Source"}}
     mode = "Source"
 
     if 'nodeFilter' not in request.keys():

@@ -19,7 +19,7 @@ from app.adv_query import aquery_process
 # INSTEAD OF PIP INSTALLED VERSION
 #==================================
 sys.path.append(app.temp_append_path)
-from networkn import NdexGraph
+from ndex.networkn import NdexGraph
 
 #from ndex.networkn import NdexGraph
 #from ndex.client import Ndex
