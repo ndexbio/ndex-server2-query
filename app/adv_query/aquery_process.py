@@ -192,7 +192,7 @@ def add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_f
             if key == "ndex:name":
                 ndex_g.graph['aq:node:name'] = node_filters["ndex:name"]
             else:
-                ndex_g.graph['aq:node:' + key] = node_filters[key]
+                ndex_g.graph['aq:node:' + key] = str(node_filters[key])
 
     return
 
