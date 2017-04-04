@@ -490,7 +490,7 @@ class NDExFileRepository():
             eventProperties = [
                 {
                     "name": "query terms",
-                    "value": search_terms,
+                    "value": str(search_terms),
                     "type": "SimplePropertyValuePair"
                 },
                 {

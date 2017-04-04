@@ -51,7 +51,7 @@ def process_advanced_query(networkId, size, request, user, password):
 
     ndex_g.remove_orphan_nodes()
 
-    # add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_filters)
+    add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_filters)
 
     #nc1.save_new_network(ndex_g.to_cx())
 
@@ -93,7 +93,7 @@ def process_advanced_query_from_file_repo(ndex_g, size, request):
 
     ndex_g.remove_orphan_nodes()
 
-    # add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_filters)
+    add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_filters)
 
     return ndex_g
 
