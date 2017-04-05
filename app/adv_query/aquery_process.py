@@ -115,7 +115,7 @@ def edge_satisfies_edge_query_criteria(edge, edge_filters):
 
     for key in edge_filters:
         if key in edge:
-            if edge[key] in edge_filters[key]:
+            if edge[key].upper() in edge_filters[key]:
                 return True
 
     return False
@@ -163,7 +163,7 @@ def compare_node_attributes_to_query_criteria(node, node_filters):
 
     for key in node_filters:
         if key in node:
-            if node[key] in node_filters[key]:
+            if node[key].upper() in node_filters[key]:
                 return True
 
     return False
@@ -219,11 +219,11 @@ def get_edge_filters(request):
                 if (filter['name'] == 'ndex:interaction'):
                     if 'interaction' not in edge_filter:
                         edge_filter['interaction'] = []
-                    edge_filter['interaction'].append(filter['value'])
+                    edge_filter['interaction'].append(filter['value'].upper())
                 else:
                     if filter['name'] not in edge_filter:
                         edge_filter[filter['name']] = []
-                    edge_filter[filter['name']].append(filter['value'])
+                    edge_filter[filter['name']].append(filter['value'].upper())
 
     return edge_filter
 
@@ -253,12 +253,12 @@ def get_node_filters(request):
                 if (filter['name'] == 'ndex:name'):
                     if 'name' not in node_filter:
                         node_filter['name'] = []
-                    node_filter['name'].append(filter['value'])
+                    node_filter['name'].append(filter['value'].upper())
 
                 else:
                     if filter['name'] not in node_filter:
                         node_filter[filter['name']] = []
-                    node_filter[filter['name']].append(filter['value'])
+                    node_filter[filter['name']].append(filter['value'].upper())
 
     return mode, node_filter
 
