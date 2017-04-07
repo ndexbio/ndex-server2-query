@@ -208,7 +208,7 @@ def add_advanced_query_criteria_to_properties(ndex_g, edge_filters, mode, node_f
 
 
 def get_edge_filters(request):
-
+    print request
     edge_filter = []
 
     if 'edgeFilter' not in request.keys():
@@ -241,6 +241,8 @@ def get_edge_filters(request):
                         edge_filter[filter['name']].append(filter['value'])
                     else:
                         edge_filter[filter['name']].append(filter['value'].upper())
+
+        print edge_filter
 
     return edge_filter
 
