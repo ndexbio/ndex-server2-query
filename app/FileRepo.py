@@ -531,6 +531,10 @@ class NDExFileRepository():
 
         all_node_ids.extend(starting_node_ids)
 
+        ## Please don't change this error code for the case when edge limit is exceeded.
+        ## Downstream applications might rely on this to detect this 'error' case.
+
+        errorCode = "EdgeLimitExceeded";
         for i in range(depth):
 
             next_node_ids = []
@@ -541,7 +545,7 @@ class NDExFileRepository():
                     all_node_ids.append(target_id)
                     next_node_ids.append(target_id)
                 else:
-                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ") Please refine your query.")
+                    raise StopIteration(errorCode)
 
             in_edges = self.ndex_g.in_edges(starting_node_ids, keys=True)
             for source_id, _, edge_id in in_edges:
@@ -550,7 +554,7 @@ class NDExFileRepository():
                     all_node_ids.append(source_id)
                     next_node_ids.append(source_id)
                 else:
-                    raise StopIteration("Query returned more than max edges (" + str(max_edges) + ") Please refine your query.")
+                    raise StopIteration(errorCode)
 
             starting_node_ids = next_node_ids
 
