@@ -33,3 +33,5 @@ gevent_websocket
 bottle
 
 pysolr
+
+ndex
